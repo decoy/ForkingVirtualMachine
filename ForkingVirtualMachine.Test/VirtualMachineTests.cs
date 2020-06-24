@@ -13,7 +13,7 @@ namespace ForkingVirtualMachine.Test
             // quick hack smoke test.
 
             var vm = new VirtualMachine();
-            var ctx = Context.Fork(vm, new byte[] { VirtualMachine.Operations.Push, VirtualMachine.Operations.Print, VirtualMachine.Operations.Define });
+            var ctx = vm.Fork(new byte[] { VirtualMachine.Operations.Push, VirtualMachine.Operations.Print, VirtualMachine.Operations.Define });
 
             var subprogram = new byte[]
             {
@@ -28,16 +28,11 @@ namespace ForkingVirtualMachine.Test
 
             program.Add(240);
 
-            // should... should the stack be part of the context? like the dictionary?
-            // a 'saved' program might depend on it?
-            // and a dictionary can modify as it goes too... (executions... shit.)
-            var stack = new Stack<long>();
+            ctx.Run(program);
 
-            ctx.Run(program.GetEnumerator(), stack);
+            var ctx2 = ctx.Fork(new byte[] { 240 });
 
-            var ctx2 = Context.Fork(ctx, new byte[] { 240 });
-
-            ctx.Run(new List<byte>(new byte[] { 240 }).GetEnumerator(), stack);
+            ctx2.Run(new byte[] { 240 });
         }
     }
 }

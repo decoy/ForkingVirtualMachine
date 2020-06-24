@@ -17,19 +17,19 @@
         public const byte LocalScope = 0;
         public const byte ParentScope = 1;
 
-        public void Execute(Context context, byte op, IEnumerator<byte> stream, Stack<long> stack)
+        public void Execute(Context context, byte op, IEnumerator<byte> stream)
         {
             switch (op)
             {
                 // pushes next item to the stack
                 case Operations.Push:
-                    stack.Push(stream.Next());
+                    context.Push(stream.Next());
                     break;
 
                 // pushes the next n items to the stack
                 case Operations.PushN:
                     var npush = stream.Next();
-                    for (var i = 0; i < npush; i++) stack.Push(stream.Next());
+                    for (var i = 0; i < npush; i++) context.Push(stream.Next());
                     break;
 
                 // defines (or unsets) a word in the context
@@ -43,6 +43,7 @@
                         break;
                     }
 
+                    // used to identify defined in this context
                     var data = new byte[ndef + 1];
                     data[0] = LocalScope;
 
@@ -55,16 +56,16 @@
 
                 // adds the top two items on the stack
                 case Operations.Add:
-                    stack.Push(stack.Pop() + stack.Pop());
+                    context.Push(context.Pop() + context.Pop());
                     break;
 
                 // pops and prints the top of the stack
                 case Operations.Print:
-                    Console.WriteLine(stack.Pop());
+                    Console.WriteLine(context.Pop());
                     break;
 
                 default:
-                    throw new Exception("unknown:" + op);
+                    throw new UnknownOperationException(op);
             }
         }
     }

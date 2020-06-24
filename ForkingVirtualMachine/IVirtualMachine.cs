@@ -4,6 +4,6 @@
 
     public interface IVirtualMachine
     {
-        public void Execute(Context context, byte op, IEnumerator<byte> stream, Stack<long> stack);
+        public void Execute(Context context, byte op, IEnumerator<byte> stream);
     }
 }

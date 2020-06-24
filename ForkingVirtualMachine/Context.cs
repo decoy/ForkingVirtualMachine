@@ -1,6 +1,5 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using System;
     using System.Collections.Generic;
 
     public class Context : IVirtualMachine
@@ -9,35 +8,22 @@
 
         private Dictionary<byte, IEnumerable<byte>> dictionary = new Dictionary<byte, IEnumerable<byte>>();
 
+        private Stack<long> stack = new Stack<long>();
+
         public Context(IVirtualMachine parent)
         {
             this.parent = parent;
         }
 
-        public static Context Fork(IVirtualMachine parent, byte[] words)
-        {
-            var context = new Context(parent);
-            foreach (var word in words)
-            {
-                context.Set(word, new byte[] { VirtualMachine.ParentScope });
-            }
-            return context;
-        }
-
-        public void Run(IEnumerable<byte> stream)
-        {
-            Run(stream.GetEnumerator(), new Stack<long>());
-        }
-
-        public void Run(IEnumerator<byte> stream, Stack<long> stack)
+        public void Run(IEnumerator<byte> stream)
         {
             while (stream.TryNext(out var op))
             {
-                Execute(this, op, stream, stack);
+                Execute(this, op, stream);
             }
         }
 
-        public void Execute(Context context, byte op, IEnumerator<byte> stream, Stack<long> stack)
+        public void Execute(Context context, byte op, IEnumerator<byte> stream)
         {
             if (Has(op))
             {
@@ -47,16 +33,17 @@
 
                 if (scope == VirtualMachine.LocalScope)
                 {
-                    Run(code, stack);
+                    // TODO: unrecur this so we can save the execution context stack
+                    Run(code);
                 }
                 else
                 {
-                    parent.Execute(context, op, stream, stack);
+                    parent.Execute(context, op, stream);
                 }
             }
             else
             {
-                throw new Exception("unknown:" + op);
+                throw new UnknownOperationException(op);
             }
         }
 
@@ -85,6 +72,16 @@
         public void Unset(byte word)
         {
             dictionary.Remove(word);
+        }
+
+        public void Push(long data)
+        {
+            stack.Push(data);
+        }
+
+        public long Pop()
+        {
+            return stack.Pop();
         }
     }
 }
