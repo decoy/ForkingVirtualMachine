@@ -48,6 +48,45 @@ namespace ForkingVirtualMachine.Test
         }
 
         [TestMethod]
+        public void Depths()
+        {
+            var ctx = new Context();
+            ctx.Stack.Push(5);
+            ctx.Stack.Push(9);
+
+            Depth.Machine.Execute(ctx);
+
+            Assert.AreEqual(2, ctx.Stack.Pop());
+            Assert.AreEqual(9, ctx.Stack.Pop());
+            Assert.AreEqual(5, ctx.Stack.Pop());
+        }
+
+        [TestMethod]
+        public void Drops()
+        {
+            var ctx = new Context();
+            ctx.Stack.Push(5);
+            ctx.Stack.Push(9);
+
+            Drop.Machine.Execute(ctx);
+
+            Assert.AreEqual(5, ctx.Stack.Pop());
+        }
+
+        [TestMethod]
+        public void Swaps()
+        {
+            var ctx = new Context();
+            ctx.Stack.Push(5);
+            ctx.Stack.Push(9);
+
+            Swap.Machine.Execute(ctx);
+
+            Assert.AreEqual(5, ctx.Stack.Pop());
+            Assert.AreEqual(9, ctx.Stack.Pop());
+        }
+
+        [TestMethod]
         public void Dupes()
         {
             var ctx = new Context();

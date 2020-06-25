@@ -5,7 +5,7 @@ using System;
 namespace ForkingVirtualMachine.Test
 {
     [TestClass]
-    public class MathMachineTests
+    public class ArithmeticMachineTests
     {
         [TestMethod]
         public void Adds()
@@ -99,7 +99,6 @@ namespace ForkingVirtualMachine.Test
 
             Assert.ThrowsException<OverflowException>(() => Multiply.Machine.Execute(ctx));
         }
-
 
         [TestMethod]
         public void Subtracts()
