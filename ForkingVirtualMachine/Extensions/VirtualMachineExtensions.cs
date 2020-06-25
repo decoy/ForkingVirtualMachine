@@ -10,7 +10,7 @@
             return vm;
         }
 
-        public static ContextMachine Fork(this IVirtualMachine machine, byte[] words)
+        public static ContextMachine Fork(this IVirtualMachine machine, params byte[] words)
         {
             var context = new Context();
             foreach (var word in words)

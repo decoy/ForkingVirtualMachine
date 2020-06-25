@@ -70,6 +70,15 @@ namespace ForkingVirtualMachine.Test
 
             Assert.AreEqual(5 + 2, col.Collected.Dequeue());
             Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
+
+            var program2 = new List<byte>()
+                .AddProgram(Op.Push, 99, word, Op.Print)
+                .ToExecution();
+
+            // FIXME - not routing internally correctly
+            ctx.Fork(word, Op.Print, Op.Push).Run(program2);
+
+            Assert.AreEqual(99 + 100, col.Collected.Dequeue());
         }
     }
 }
