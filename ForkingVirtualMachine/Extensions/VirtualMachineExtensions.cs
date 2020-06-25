@@ -1,6 +1,7 @@
 ﻿namespace ForkingVirtualMachine.Extensions
 {
     using ForkingVirtualMachine.Machines;
+    using System.Linq;
 
     public static class VirtualMachineExtensions
     {
@@ -8,6 +9,11 @@
         {
             vm.Machines.Add(word, machine);
             return vm;
+        }
+
+        public static ContextMachine Fork(this VirtualMachine machine)
+        {
+            return Fork(machine, machine.Machines.Keys.ToArray());
         }
 
         public static ContextMachine Fork(this IVirtualMachine machine, params byte[] words)

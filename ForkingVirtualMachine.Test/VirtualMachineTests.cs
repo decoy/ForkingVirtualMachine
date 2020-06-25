@@ -31,19 +31,38 @@ namespace ForkingVirtualMachine.Test
             }
         }
 
-        [TestMethod]
-        public void TestyTestums()
+        private static VirtualMachine CreateTestVm(Collector col)
         {
-            var col = new Collector();
-            var vm = new VirtualMachine()
+            return new VirtualMachine()
                 .Add(Op.Push, Push.Machine)
                 .Add(Op.Add, Add.Machine)
                 .Add(Op.Define, Define.Machine)
                 .Add(Op.PushN, PushN.Machine)
                 .Add(Op.Dupe, Dupe.Machine)
                 .Add(Op.Print, col);
+        }
 
-            var ctx = vm.Fork(vm.Machines.Keys.ToArray());
+        [TestMethod]
+        public void RunsMachine()
+        {
+            var col = new Collector();
+            var ctx = CreateTestVm(col).Fork();
+
+            var program = new List<byte>()
+                .AddProgram(Op.Push, 5, Op.Push, 2, Op.Add, Op.Print)
+                .ToExecution();
+
+            ctx.Run(program);
+
+            Assert.AreEqual(7, col.Collected.Dequeue());
+        }
+
+        [TestMethod]
+        public void TestyTestums()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
+            var ctx = vm.Fork();
 
             byte word = 240;
             var subprogram = new byte[]
@@ -76,6 +95,7 @@ namespace ForkingVirtualMachine.Test
                 .ToExecution();
 
             // FIXME - not routing internally correctly
+            // routed should run on the parent context
             ctx.Fork(word, Op.Print, Op.Push).Run(program2);
 
             Assert.AreEqual(99 + 100, col.Collected.Dequeue());
