@@ -6,6 +6,8 @@
     {
         private ReadOnlyMemory<byte> data;
 
+        public int Scope { get; }
+
         public int Index { get; private set; }
 
         public int Length => data.Length;
@@ -14,8 +16,9 @@
 
         public bool IsComplete => Index >= data.Length;
 
-        public Execution(byte[] data)
+        public Execution(byte[] data, int scope)
         {
+            this.Scope = scope;
             this.data = data;
         }
 
@@ -38,9 +41,9 @@
             return data.Span.Slice(Index);
         }
 
-        public Execution ToTrimmed()
+        public Execution ToScope(int scope)
         {
-            return new Execution(ToBytes().ToArray());
+            return new Execution(ToBytes().ToArray(), Scope + scope);
         }
     }
 }

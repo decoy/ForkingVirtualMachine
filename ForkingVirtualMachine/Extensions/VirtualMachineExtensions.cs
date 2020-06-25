@@ -1,6 +1,5 @@
 ﻿namespace ForkingVirtualMachine.Extensions
 {
-    using ForkingVirtualMachine.Machines;
     using System.Linq;
 
     public static class VirtualMachineExtensions
@@ -11,31 +10,56 @@
             return vm;
         }
 
-        public static ContextMachine Fork(this VirtualMachine machine)
+        public static VirtualMachine2 Add(this VirtualMachine2 vm, byte word, IVirtualMachine machine)
         {
-            return Fork(machine, machine.Machines.Keys.ToArray());
+            vm.Machines.Add(word, machine);
+            return vm;
         }
 
-        public static ContextMachine Fork(this IVirtualMachine machine, params byte[] words)
+        public static Context GetExecutionScope(this Context context)
         {
-            var context = new Context();
+            Context scope = context;
+            for (var i = context.Execution.Scope; i > 0; i++)
+            {
+                // TODO: null refs mean this is corrupted?
+                if (context == null)
+                {
+                    throw new UnknownOperationException(0);
+                }
+                scope = context.Parent;
+            }
+            return scope;
+        }
+
+        public static Context Fork(this VirtualMachine machine)
+        {
+            return Fork(null, machine.Machines.Keys.ToArray());
+        }
+
+        public static Context Fork(this VirtualMachine2 machine)
+        {
+            return Fork(null, machine.Machines.Keys.ToArray());
+        }
+
+        public static Context Fork(this Context parent, params byte[] words)
+        {
+            var context = new Context(parent);
             foreach (var word in words)
             {
-                context.Functions.Add(word, new Execution(new byte[] { word }));
+                context.Functions.Add(word, new Execution(new byte[] { word }, 1));
             }
-            return new ContextMachine(machine, context);
+            return context;
         }
 
-        public static void Run(this ContextMachine machine, Execution exe)
+        public static void Run(this IVirtualMachine machine, Context context)
         {
-            machine.State.Executions.Push(exe);
-            while (machine.State.Executions.Count > 0)
+            while (context.Executions.Count > 0)
             {
-                while (!machine.State.Execution.IsComplete)
+                while (!context.Execution.IsComplete)
                 {
-                    machine.Execute(machine.State);
+                    machine.Execute(context);
                 }
-                machine.State.Executions.Pop();
+                context.Executions.Pop();
             }
         }
     }

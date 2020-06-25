@@ -31,9 +31,9 @@ namespace ForkingVirtualMachine.Test
             }
         }
 
-        private static VirtualMachine CreateTestVm(Collector col)
+        private static VirtualMachine2 CreateTestVm(Collector col)
         {
-            return new VirtualMachine()
+            return new VirtualMachine2()
                 .Add(Op.Push, Push.Machine)
                 .Add(Op.Add, Add.Machine)
                 .Add(Op.Define, Define.Machine)
@@ -46,13 +46,16 @@ namespace ForkingVirtualMachine.Test
         public void RunsMachine()
         {
             var col = new Collector();
-            var ctx = CreateTestVm(col).Fork();
+            var vm = CreateTestVm(col);
 
             var program = new List<byte>()
                 .AddProgram(Op.Push, 5, Op.Push, 2, Op.Add, Op.Print)
                 .ToExecution();
 
-            ctx.Run(program);
+            var ctx = vm.Fork();
+            ctx.Executions.Push(program);
+
+            vm.Run(ctx);
 
             Assert.AreEqual(7, col.Collected.Dequeue());
         }
@@ -62,30 +65,30 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
-            var ctx = vm.Fork();
+
 
             byte word = 240;
-            var subprogram = new byte[]
-            {
-                Op.Push, 100,
-                Op.Add
-            };
 
             var program = new List<byte>()
+                // create a function (adds 100)
                 .AddProgram(Op.Define, word)
-                .AddData(subprogram)
+                .AddData(Op.Push, 100, Op.Add)
 
+                // Push 5 and 2 to the stack
                 .AddProgram(Op.PushN)
                 .AddData(5, 2)
 
-                // add 5 + 2, dupe, print and pop
+                // add 5 + 2, dupe, print
                 .AddProgram(Op.Add, Op.Dupe, Op.Print)
 
-                // then run the program which +100
+                // then run the program +100 funcion and print
                 .AddProgram(word, Op.Print)
                 .ToExecution();
 
-            ctx.Run(program);
+            var ctx = vm.Fork();
+            ctx.Executions.Push(program);
+
+            vm.Run(ctx);
 
             Assert.AreEqual(5 + 2, col.Collected.Dequeue());
             Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
@@ -96,7 +99,11 @@ namespace ForkingVirtualMachine.Test
 
             // FIXME - not routing internally correctly
             // routed should run on the parent context
-            ctx.Fork(word, Op.Print, Op.Push).Run(program2);
+            // I'm thinking exe's should have a 'scope' var that is just how far down it goes.
+            // "0" would be the current way, yeah? (wondering if this is somehow a function, the pushexe)
+            var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
+            ctx2.Executions.Push(program2);
+            vm.Run(ctx2);
 
             Assert.AreEqual(99 + 100, col.Collected.Dequeue());
         }

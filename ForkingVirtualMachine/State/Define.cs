@@ -9,30 +9,29 @@
         public void Execute(Context context)
         {
             var word = context.Execution.Next();
-            var ndef = context.Execution.Next();
+            var n = context.Execution.Next();
 
-            if (ndef < 1) // undefine
+            if (n < 1) // undefine
             {
                 context.Functions.Remove(word);
                 return;
             }
 
-            // prepend so we know it's local to this context
-            var data = new byte[ndef + 1];
-            data[0] = Local;
-
-            for (var i = 1; i <= ndef; i++)
+            var data = new byte[n];
+            for (var i = 0; i < n; i++)
             {
                 data[i] = context.Execution.Next();
             }
 
+            var exe = new Execution(data, 0);
+
             if (context.Functions.ContainsKey(word))
             {
-                context.Functions[word] = new Execution(data);
+                context.Functions[word] = exe;
             }
             else
             {
-                context.Functions.Add(word, new Execution(data));
+                context.Functions.Add(word, exe);
             }
         }
     }

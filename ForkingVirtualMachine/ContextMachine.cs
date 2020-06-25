@@ -1,41 +1,37 @@
 ﻿namespace ForkingVirtualMachine.Machines
 {
-    using ForkingVirtualMachine.State;
+    using ForkingVirtualMachine.Extensions;
 
     public class ContextMachine : IVirtualMachine
     {
         private readonly IVirtualMachine machine;
 
-        public Context State { get; }
-
-        public ContextMachine(IVirtualMachine machine, Context state)
+        public ContextMachine(IVirtualMachine machine)
         {
             this.machine = machine;
-            State = state;
         }
 
         public void Execute(Context context)
         {
-            var op = context.Execution.Current;
-            if (State.Functions.ContainsKey(op))
+            var scope = context.GetExecutionScope();
+
+            if (scope == null)
             {
-                var code = State.Functions[op].ToTrimmed(); // copy
-                // local 'define' puts 0 at the beginning
-                // only way to end up on that dictionary
-                if (code.Current == Define.Local)
+                machine.Execute(context);
+            }
+            else
+            {
+                var op = context.Execution.Next();
+                if (scope.Functions.ContainsKey(op))
                 {
-                    context.Execution.Next(); // eat the op
-                    code.Next(); // eat the 0
+                    // get a scoped copy
+                    var code = scope.Functions[op].ToScope(context.Execution.Scope);
                     context.Executions.Push(code);
                 }
                 else
                 {
-                    machine.Execute(context);
+                    throw new UnknownOperationException(op);
                 }
-            }
-            else
-            {
-                throw new UnknownOperationException(op);
             }
         }
     }
