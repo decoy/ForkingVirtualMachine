@@ -18,7 +18,6 @@
 
         public void Run(Context context)
         {
-            // just a simple runner for now
             while (context.Executions.Count > 0)
             {
                 Execute(context);
@@ -45,7 +44,7 @@
             }
             else
             {
-                throw new UnknownOperationException(op);
+                throw new UnknownOperationException(scope, op);
             }
         }
     }

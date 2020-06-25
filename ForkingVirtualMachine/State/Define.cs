@@ -17,14 +17,7 @@
                 return;
             }
 
-            var data = new byte[n];
-
-            for (var i = 0; i < n; i++)
-            {
-                data[i] = context.Execution.Next();
-            }
-
-            var exe = new Execution(context, data);
+            var exe = new Execution(context, context.Execution.Next(n).ToArray());
 
             if (context.Functions.ContainsKey(word))
             {

@@ -8,8 +8,11 @@
     {
         public byte Operation { get; }
 
-        public UnknownOperationException(byte operation) : base("Unknown operation: " + operation)
+        public Context Scope { get; }
+
+        public UnknownOperationException(Context scope, byte operation) : base("Unknown operation: " + operation)
         {
+            Scope = scope;
             Operation = operation;
         }
     }
