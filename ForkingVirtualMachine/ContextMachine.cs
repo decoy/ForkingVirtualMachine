@@ -1,5 +1,7 @@
 ﻿namespace ForkingVirtualMachine.Machines
 {
+    using ForkingVirtualMachine.State;
+
     public class ContextMachine : IVirtualMachine
     {
         private readonly IVirtualMachine machine;
@@ -20,7 +22,7 @@
                 var code = State.Functions[op].ToTrimmed(); // copy
                 // local 'define' puts 0 at the beginning
                 // only way to end up on that dictionary
-                if (code.Current == 0)
+                if (code.Current == Define.Local)
                 {
                     context.Execution.Next(); // eat the op
                     code.Next(); // eat the 0

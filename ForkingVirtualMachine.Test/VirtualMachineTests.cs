@@ -4,6 +4,7 @@ using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using ForkingVirtualMachine.Extensions;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -17,34 +18,58 @@ namespace ForkingVirtualMachine.Test
             public const byte Define = 3;
             public const byte Add = 20;
             public const byte Print = 100;
+            public const byte Dupe = 22;
+        }
+
+        public class Collector : IVirtualMachine
+        {
+            public Queue<long> Collected { get; } = new Queue<long>();
+
+            public void Execute(Context context)
+            {
+                Collected.Enqueue(context.Stack.Pop());
+            }
         }
 
         [TestMethod]
         public void TestyTestums()
         {
-            var vm = new VirtualMachine();
-            vm.Machines.Add(Op.Push, new Push());
-            vm.Machines.Add(Op.Add, new Add());
-            vm.Machines.Add(Op.Define, Define.Machine);
-            vm.Machines.Add(Op.PushN, new PushN());
-            vm.Machines.Add(Op.Print, new Print());
+            var col = new Collector();
+            var vm = new VirtualMachine()
+                .Add(Op.Push, Push.Machine)
+                .Add(Op.Add, Add.Machine)
+                .Add(Op.Define, Define.Machine)
+                .Add(Op.PushN, PushN.Machine)
+                .Add(Op.Dupe, Dupe.Machine)
+                .Add(Op.Print, col);
 
             var ctx = vm.Fork(vm.Machines.Keys.ToArray());
 
             byte word = 240;
             var subprogram = new byte[]
             {
-                Op.Push, 99,
-                Op.Print
+                Op.Push, 100,
+                Op.Add
             };
 
-            var program = new List<byte>();
-            program.AddRange(new byte[] { Op.Define, word, (byte)subprogram.Length });
-            program.AddRange(subprogram);
-            program.AddRange(new byte[] { Op.Push, 111, Op.Print });
-            program.Add(word);
+            var program = new List<byte>()
+                .AddProgram(Op.Define, word)
+                .AddData(subprogram)
+
+                .AddProgram(Op.PushN)
+                .AddData(5, 2)
+
+                // add 5 + 2, dupe, print and pop
+                .AddProgram(Op.Add, Op.Dupe, Op.Print)
+
+                // then run the program which +100
+                .AddProgram(word, Op.Print)
+                .ToExecution();
 
             ctx.Run(program);
+
+            Assert.AreEqual(5 + 2, col.Collected.Dequeue());
+            Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
         }
     }
 }

@@ -4,6 +4,8 @@
 
     public class PushInt64LittleEndian : IVirtualMachine
     {
+        public static readonly IVirtualMachine Machine = new PushInt64LittleEndian();
+
         public void Execute(Context context)
         {
             context.Stack.Push(BinaryPrimitives.ReadInt64LittleEndian(context.Execution.Next(8)));

@@ -12,15 +12,13 @@
 
         public byte Current => data.Span[Index];
 
-        public bool IsComplete => (Index >= data.Length);
+        public bool IsComplete => Index >= data.Length;
 
         public Execution(byte[] data)
         {
             this.data = data;
         }
 
-        // ... these are machines, they're like middleware 
-        // (just wrapping the function)
         public byte Next()
         {
             var res = Current;

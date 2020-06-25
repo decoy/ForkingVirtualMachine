@@ -2,6 +2,8 @@
 {
     public class PushExe : IVirtualMachine
     {
+        public static readonly IVirtualMachine Machine = new PushExe();
+
         public void Execute(Context context)
         {
             var n = context.Execution.Next();

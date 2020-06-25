@@ -1,11 +1,15 @@
-﻿namespace ForkingVirtualMachine
+﻿namespace ForkingVirtualMachine.Extensions
 {
     using ForkingVirtualMachine.Machines;
-    using System.Collections.Generic;
-    using System.Linq;
 
     public static class VirtualMachineExtensions
     {
+        public static VirtualMachine Add(this VirtualMachine vm, byte word, IVirtualMachine machine)
+        {
+            vm.Machines.Add(word, machine);
+            return vm;
+        }
+
         public static ContextMachine Fork(this IVirtualMachine machine, byte[] words)
         {
             var context = new Context();
@@ -16,9 +20,9 @@
             return new ContextMachine(machine, context);
         }
 
-        public static void Run(this ContextMachine machine, IEnumerable<byte> program)
+        public static void Run(this ContextMachine machine, Execution exe)
         {
-            machine.State.Executions.Push(new Execution(program.ToArray()));
+            machine.State.Executions.Push(exe);
             while (machine.State.Executions.Count > 0)
             {
                 while (!machine.State.Execution.IsComplete)

@@ -2,6 +2,8 @@
 {
     public class PushN : IVirtualMachine
     {
+        public static readonly IVirtualMachine Machine = new PushN();
+
         public void Execute(Context context)
         {
             var n = context.Execution.Next();

@@ -2,6 +2,8 @@
 {
     public class Define : IVirtualMachine
     {
+        public const byte Local = 0;
+
         public static readonly IVirtualMachine Machine = new Define();
 
         public void Execute(Context context)
@@ -15,8 +17,9 @@
                 return;
             }
 
+            // prepend so we know it's local to this context
             var data = new byte[ndef + 1];
-            data[0] = 0; // identifies this as a local scope function 
+            data[0] = Local;
 
             for (var i = 1; i <= ndef; i++)
             {
