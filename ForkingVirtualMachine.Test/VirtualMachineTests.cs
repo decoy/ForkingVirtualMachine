@@ -1,10 +1,9 @@
-using ForkingVirtualMachine.Machines;
 using ForkingVirtualMachine.Extra;
+using ForkingVirtualMachine.Math;
 using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
+using System.Linq;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -25,49 +24,27 @@ namespace ForkingVirtualMachine.Test
         {
             var vm = new VirtualMachine();
             vm.Machines.Add(Op.Push, new Push());
+            vm.Machines.Add(Op.Add, new Add());
             vm.Machines.Add(Op.Define, Define.Machine);
             vm.Machines.Add(Op.PushN, new PushN());
             vm.Machines.Add(Op.Print, new Print());
 
-            var ctx = new Context();
-            ctx.Executions.Push(new Execution(new byte[]
+            var ctx = vm.Fork(vm.Machines.Keys.ToArray());
+
+            byte word = 240;
+            var subprogram = new byte[]
             {
-                0,
-                Op.Push, 5,
-                Op.Push, 6,
-                Op.Add,
-                Op.Print,
-            }));
+                Op.Push, 99,
+                Op.Print
+            };
 
-            vm.Execute(ctx);
-        }
+            var program = new List<byte>();
+            program.AddRange(new byte[] { Op.Define, word, (byte)subprogram.Length });
+            program.AddRange(subprogram);
+            program.AddRange(new byte[] { Op.Push, 111, Op.Print });
+            program.Add(word);
 
-        [TestMethod]
-        public void TestStuff()
-        {
-            // quick hack smoke test.
-
-            //var vm = new VirtualMachine();
-            //var ctx = vm.Fork(new byte[] { VirtualMachine.Operations.Push, VirtualMachine.Operations.Print, VirtualMachine.Operations.Define });
-
-            //var subprogram = new byte[]
-            //{
-            //    VirtualMachine.Operations.Push, 3,
-            //    VirtualMachine.Operations.Print
-            //};
-
-            //var program = new List<byte>();
-            //program.AddRange(new byte[] { VirtualMachine.Operations.Define, 240, (byte)subprogram.Length });
-            //program.AddRange(subprogram);
-            //program.AddRange(new byte[] { VirtualMachine.Operations.Push, 111, VirtualMachine.Operations.Print });
-
-            //program.Add(240);
-
-            //ctx.Run(program);
-
-            //var ctx2 = ctx.Fork(new byte[] { 240 });
-
-            //ctx2.Run(new byte[] { 240 });
+            ctx.Run(program);
         }
     }
 }

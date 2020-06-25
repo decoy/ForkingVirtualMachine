@@ -14,7 +14,7 @@
 
         public void Execute(Context context)
         {
-            var op = context.Execution.Next();
+            var op = context.Execution.Current;
             if (State.Functions.ContainsKey(op))
             {
                 var code = State.Functions[op].ToTrimmed(); // copy
@@ -22,6 +22,7 @@
                 // only way to end up on that dictionary
                 if (code.Current == 0)
                 {
+                    context.Execution.Next(); // eat the op
                     code.Next(); // eat the 0
                     context.Executions.Push(code);
                 }

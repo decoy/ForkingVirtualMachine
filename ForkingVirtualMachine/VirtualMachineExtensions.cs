@@ -6,25 +6,27 @@
 
     public static class VirtualMachineExtensions
     {
-        public static IVirtualMachine Fork(this IVirtualMachine machine, byte[] words)
+        public static ContextMachine Fork(this IVirtualMachine machine, byte[] words)
         {
             var context = new Context();
             foreach (var word in words)
             {
-                context.Functions.Add(word, new Execution(new byte[] { 0, word }));
+                context.Functions.Add(word, new Execution(new byte[] { word }));
             }
             return new ContextMachine(machine, context);
         }
 
-        public static void Run(this IVirtualMachine machine, IEnumerable<byte> program)
+        public static void Run(this ContextMachine machine, IEnumerable<byte> program)
         {
-            var exe = new Execution(program.ToArray());
-            machine.State.Executions.Push(exe);
+            machine.State.Executions.Push(new Execution(program.ToArray()));
+            while (machine.State.Executions.Count > 0)
+            {
+                while (!machine.State.Execution.IsComplete)
+                {
+                    machine.Execute(machine.State);
+                }
+                machine.State.Executions.Pop();
+            }
         }
-
-        //public static void Run(this ForkedVM context, IEnumerable<byte> stream)
-        //{
-        //    context.Run(stream.GetEnumerator());
-        //}
     }
 }
