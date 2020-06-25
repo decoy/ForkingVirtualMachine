@@ -1,5 +1,5 @@
 using ForkingVirtualMachine.Extensions;
-using ForkingVirtualMachine.Math;
+using ForkingVirtualMachine.Arithmetic;
 using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;

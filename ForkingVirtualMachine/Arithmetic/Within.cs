@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine.Math
+﻿namespace ForkingVirtualMachine.Arithmetic
 {
     public class Within : IVirtualMachine
     {
