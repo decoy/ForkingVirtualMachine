@@ -6,7 +6,7 @@
     {
         public Context Parent { get; }
 
-        public Context Scope { get; private set; }
+        public Context Scope { get; set; }
 
         public Dictionary<byte, Execution> Functions { get; } = new Dictionary<byte, Execution>();
         public Stack<long> Stack { get; } = new Stack<long>();
@@ -19,7 +19,7 @@
             Scope = this;
         }
 
-        public Context(Context parent) : base()
+        public Context(Context parent) : this()
         {
             Parent = parent;
         }

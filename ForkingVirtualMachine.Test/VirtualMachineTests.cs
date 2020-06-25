@@ -31,9 +31,9 @@ namespace ForkingVirtualMachine.Test
             }
         }
 
-        private static VirtualMachine2 CreateTestVm(Collector col)
+        private static VirtualMachine CreateTestVm(Collector col)
         {
-            return new VirtualMachine2()
+            return new VirtualMachine()
                 .Add(Op.Push, Push.Machine)
                 .Add(Op.Add, Add.Machine)
                 .Add(Op.Define, Define.Machine)

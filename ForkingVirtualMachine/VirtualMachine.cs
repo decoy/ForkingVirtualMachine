@@ -18,11 +18,31 @@
 
         public void Execute(Context context)
         {
-            // we could grab a bigger index value here
+            // get the scope with each exe
+            // really leaning towards this
+            // but scopes are really just stacks... so.....
+            // should context scope be part of the exe, not the other way around?
+
+            // storing gets super weird...
+
             var op = context.Execution.Next();
-            if (Machines.ContainsKey(op))
+            if (context.Execution.IsComplete)
+            {
+                context.Executions.Pop();
+            }
+
+            if (context.Scope == null && Machines.ContainsKey(op))
             {
                 Machines[op].Execute(context);
+            }
+            else if (context.Scope != null && context.Scope.Functions.ContainsKey(op))
+            {
+                var code = context.Scope.Functions[op].Copy();
+                if (code.Current != 0)
+                {
+                    context.Scope = context.Parent;
+                }
+                context.Executions.Push(code);
             }
             else
             {

@@ -20,7 +20,7 @@
 
         public static Execution ToExecution(this IEnumerable<byte> program)
         {
-            return new Execution(program.ToArray(), 0);
+            return new Execution(program.ToArray());
         }
     }
 }

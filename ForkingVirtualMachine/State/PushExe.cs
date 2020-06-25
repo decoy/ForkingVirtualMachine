@@ -6,10 +6,9 @@
 
         public void Execute(Context context)
         {
-            var scope = context.Execution.Next();
             var n = context.Execution.Next();
             var code = context.Execution.Next(n);
-            context.Executions.Push(new Execution(code.ToArray(), scope));
+            context.Executions.Push(new Execution(code.ToArray()));
         }
     }
 }
