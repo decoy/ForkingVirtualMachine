@@ -18,9 +18,9 @@
             return program;
         }
 
-        public static Execution ToExecution(this IEnumerable<byte> program)
+        public static Execution ToExecution(this IEnumerable<byte> program, Context scope)
         {
-            return new Execution(program.ToArray());
+            return new Execution(scope, program.ToArray());
         }
     }
 }

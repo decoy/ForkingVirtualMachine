@@ -17,15 +17,14 @@
                 return;
             }
 
-            var data = new byte[n + 1];
-            data[0] = Local;
+            var data = new byte[n];
 
-            for (var i = 1; i <= n; i++)
+            for (var i = 0; i < n; i++)
             {
                 data[i] = context.Execution.Next();
             }
 
-            var exe = new Execution(data);
+            var exe = new Execution(context, data);
 
             if (context.Functions.ContainsKey(word))
             {

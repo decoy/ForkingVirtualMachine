@@ -16,33 +16,32 @@
             Machines = machines;
         }
 
+        public void Run(Context context)
+        {
+            // just a simple runner for now
+            while (context.Executions.Count > 0)
+            {
+                Execute(context);
+            }
+        }
+
         public void Execute(Context context)
         {
-            // get the scope with each exe
-            // really leaning towards this
-            // but scopes are really just stacks... so.....
-            // should context scope be part of the exe, not the other way around?
-
-            // storing gets super weird...
-
+            var scope = context.Execution.Scope;
             var op = context.Execution.Next();
+
             if (context.Execution.IsComplete)
             {
                 context.Executions.Pop();
             }
 
-            if (context.Scope == null && Machines.ContainsKey(op))
+            if (scope == null && Machines.ContainsKey(op))
             {
                 Machines[op].Execute(context);
             }
-            else if (context.Scope != null && context.Scope.Functions.ContainsKey(op))
+            else if (scope != null && scope.Functions.ContainsKey(op))
             {
-                var code = context.Scope.Functions[op].Copy();
-                if (code.Current != 0)
-                {
-                    context.Scope = context.Parent;
-                }
-                context.Executions.Push(code);
+                context.Executions.Push(scope.Functions[op].Copy());
             }
             else
             {

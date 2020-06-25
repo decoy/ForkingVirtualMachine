@@ -47,12 +47,13 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = vm.Fork();
 
             var program = new List<byte>()
                 .AddProgram(Op.Push, 5, Op.Push, 2, Op.Add, Op.Print)
-                .ToExecution();
+                .ToExecution(ctx);
 
-            var ctx = vm.Fork();
+
             ctx.Executions.Push(program);
 
             vm.Run(ctx);
@@ -65,7 +66,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
-
+            var ctx = vm.Fork();
 
             byte word = 240;
 
@@ -83,9 +84,9 @@ namespace ForkingVirtualMachine.Test
 
                 // then run the program +100 funcion and print
                 .AddProgram(word, Op.Print)
-                .ToExecution();
+                .ToExecution(ctx);
 
-            var ctx = vm.Fork();
+
             ctx.Executions.Push(program);
 
             vm.Run(ctx);
@@ -93,15 +94,11 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(5 + 2, col.Collected.Dequeue());
             Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
 
+            var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
             var program2 = new List<byte>()
                 .AddProgram(Op.Push, 99, word, Op.Print)
-                .ToExecution();
+                .ToExecution(ctx2);
 
-            // FIXME - not routing internally correctly
-            // routed should run on the parent context
-            // I'm thinking exe's should have a 'scope' var that is just how far down it goes.
-            // "0" would be the current way, yeah? (wondering if this is somehow a function, the pushexe)
-            var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
             ctx2.Executions.Push(program2);
             vm.Run(ctx2);
 

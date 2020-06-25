@@ -12,25 +12,22 @@
 
         public static Context Fork(this VirtualMachine machine)
         {
-            return Fork(null, machine.Machines.Keys.ToArray());
-        }
-
-        public static Context Fork(this Context parent, params byte[] words)
-        {
-            var context = new Context(parent);
-            foreach (var word in words)
+            var context = new Context();
+            foreach (var word in machine.Machines.Keys.ToArray())
             {
-                context.Functions.Add(word, new Execution(new byte[] { word }));
+                context.Functions.Add(word, new Execution(null, new[] { word }));
             }
             return context;
         }
 
-        public static void Run(this IVirtualMachine machine, Context context)
+        public static Context Fork(this Context parent, params byte[] words)
         {
-            while (context.Executions.Count > 0)
+            var context = new Context();
+            foreach (var word in words)
             {
-                machine.Execute(context);
+                context.Functions.Add(word, parent.Functions[word]);
             }
+            return context;
         }
     }
 }

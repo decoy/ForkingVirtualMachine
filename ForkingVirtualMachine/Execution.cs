@@ -6,6 +6,8 @@
     {
         private ReadOnlyMemory<byte> data;
 
+        public Context Scope { get; private set; }
+
         public int Index { get; private set; }
 
         public int Length => data.Length;
@@ -14,8 +16,9 @@
 
         public bool IsComplete => Index >= data.Length;
 
-        public Execution(byte[] data)
+        public Execution(Context scope, byte[] data)
         {
+            Scope = scope;
             this.data = data;
         }
 
@@ -40,7 +43,7 @@
 
         public Execution Copy()
         {
-            return new Execution(ToBytes().ToArray());
+            return new Execution(Scope, ToBytes().ToArray());
         }
     }
 }
