@@ -3,6 +3,7 @@ using ForkingVirtualMachine.Arithmetic;
 using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using ForkingVirtualMachine.Flow;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -11,6 +12,7 @@ namespace ForkingVirtualMachine.Test
     {
         public static class Op
         {
+            public const byte No = 0;
             public const byte Push = 1;
             public const byte PushN = 2;
             public const byte Define = 3;
@@ -32,12 +34,51 @@ namespace ForkingVirtualMachine.Test
         private static VirtualMachine CreateTestVm(Collector col)
         {
             return new VirtualMachine()
+                .Add(Op.No, SafeWord.Machine)
                 .Add(Op.Push, Push.Machine)
                 .Add(Op.Add, Add.Machine)
                 .Add(Op.Define, Define.Machine)
                 .Add(Op.PushN, PushN.Machine)
                 .Add(Op.Dupe, Dupe.Machine)
                 .Add(Op.Print, col);
+        }
+
+        [TestMethod]
+        public void MoreTesting()
+        {
+            var col = new Collector();
+            var trash = CreateTestVm(col);
+            var router = new Router(trash.Machines);
+            var ctx = trash.Fork();
+            var vm = new Operation(router);
+
+            byte word = 240;
+
+            var program = new List<byte>()
+                // create a function (adds 100)
+                .AddProgram(Op.Define, word)
+                .AddData(Op.Push, 100, Op.Add)
+
+                // Push 5 and 2 to the stack
+                .AddProgram(Op.PushN)
+                .AddData(5, 2)
+
+                // add 5 + 2, dupe, print
+                .AddProgram(Op.Add, Op.Dupe, Op.Print)
+
+                // then run the program +100 funcion and print
+                .AddProgram(word, Op.Print)
+                .ToExecution(ctx);
+
+
+            ctx.Executions.Push(program);
+
+            while (ctx.Executions.Count > 0)
+            {
+                vm.Execute(ctx);
+            }
+
+            var x = col;
         }
 
         [TestMethod]
@@ -57,6 +98,54 @@ namespace ForkingVirtualMachine.Test
             vm.Run(ctx);
 
             Assert.AreEqual(7, col.Collected.Dequeue());
+        }
+
+        [TestMethod]
+        public void TestyTestums2()
+        {
+            var col = new Collector();
+            var trash = CreateTestVm(col);
+            var router = new Router(trash.Machines);
+            var ctx = trash.Fork();
+            var vm = new Operation(router);
+
+            byte word = 240;
+
+            var program = new List<byte>()
+                // create a function (adds 100)
+                .AddProgram(Op.Define, word)
+                .AddData(Op.Push, 100, Op.Add)
+
+                // Push 5 and 2 to the stack
+                .AddProgram(Op.PushN)
+                .AddData(5, 2)
+
+                // add 5 + 2, dupe, print
+                .AddProgram(Op.Add, Op.Dupe, Op.Print)
+
+                // then run the program +100 funcion and print
+                .AddProgram(word, Op.Print)
+                .ToExecution(ctx);
+
+
+            ctx.Executions.Push(program);
+
+            while (ctx.Executions.Count > 0)
+                vm.Execute(ctx);
+
+            Assert.AreEqual(5 + 2, col.Collected.Dequeue());
+            Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
+
+            var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
+            var program2 = new List<byte>()
+                .AddProgram(Op.Push, 99, word, Op.Print)
+                .ToExecution(ctx2);
+
+            ctx2.Executions.Push(program2);
+            while (ctx.Executions.Count > 0)
+                vm.Execute(ctx2);
+
+            Assert.AreEqual(99 + 100, col.Collected.Dequeue());
         }
 
         [TestMethod]
