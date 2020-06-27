@@ -5,16 +5,20 @@ using System.Linq;
 
 namespace ForkingVirtualMachine.Test
 {
+
     [TestClass]
     public class StateMachineTests
     {
+        private static Execution Create(byte[] data)
+        {
+            return new Execution(new Executable(null, null, data));
+        }
+
         [TestMethod]
         public void Defines()
         {
             byte word = 240;
-            var ctx = new Context();
-
-            ctx.Executions.Push(new Execution(ctx, new byte[]
+            var ctx = new Context(Create(new byte[]
             {
                 word, 2, 9, 10, // define as 9, 10
                 250,            // random op
@@ -30,9 +34,9 @@ namespace ForkingVirtualMachine.Test
 
             // the word is the correct length and has values
             var exe = ctx.Functions[word];
-            Assert.AreEqual(2, exe.Length);
-            Assert.AreEqual(9, exe.Next());
-            Assert.AreEqual(10, exe.Next());
+            Assert.AreEqual(2, exe.Data.Length);
+            Assert.AreEqual(9, exe.Data.Span[0]);
+            Assert.AreEqual(10, exe.Data.Span[1]);
 
             // the execution has been forwarded
             Assert.AreEqual(250, ctx.Execution.Next());
@@ -50,7 +54,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Depths()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(9);
 
@@ -64,7 +68,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Drops()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(9);
 
@@ -76,7 +80,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Swaps()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(9);
 
@@ -89,7 +93,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Dupes()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -103,13 +107,11 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Pushes()
         {
-            var ctx = new Context();
-            ctx.Stack.Push(5);
-
-            ctx.Executions.Push(new Execution(ctx, new byte[]
+            var ctx = new Context(Create(new byte[]
             {
                 99, 100
             }));
+            ctx.Stack.Push(5);
 
             Push.Machine.Execute(ctx);
 
@@ -121,13 +123,11 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void PushesN()
         {
-            var ctx = new Context();
-            ctx.Stack.Push(5);
-
-            ctx.Executions.Push(new Execution(ctx, new byte[]
+            var ctx = new Context(Create(new byte[]
             {
                 2, 99, 100, 101
             }));
+            ctx.Stack.Push(5);
 
             PushN.Machine.Execute(ctx);
 
@@ -140,9 +140,6 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void PushesInt64Big()
         {
-            var ctx = new Context();
-            ctx.Stack.Push(5);
-
             var a = new byte[8];
             var b = new byte[8];
 
@@ -151,7 +148,8 @@ namespace ForkingVirtualMachine.Test
 
             var exe = a.Concat(b).ToArray();
 
-            ctx.Executions.Push(new Execution(ctx, exe));
+            var ctx = new Context(Create(exe));
+            ctx.Stack.Push(5);
 
             PushInt64BigEndian.Machine.Execute(ctx);
             Assert.AreEqual(long.MaxValue, ctx.Stack.Pop());
@@ -164,9 +162,6 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void PushesInt64Little()
         {
-            var ctx = new Context();
-            ctx.Stack.Push(5);
-
             var a = new byte[8];
             var b = new byte[8];
 
@@ -175,7 +170,8 @@ namespace ForkingVirtualMachine.Test
 
             var exe = a.Concat(b).ToArray();
 
-            ctx.Executions.Push(new Execution(ctx, exe));
+            var ctx = new Context(Create(exe));
+            ctx.Stack.Push(5);
 
             PushInt64LittleEndian.Machine.Execute(ctx);
             Assert.AreEqual(long.MaxValue, ctx.Stack.Pop());

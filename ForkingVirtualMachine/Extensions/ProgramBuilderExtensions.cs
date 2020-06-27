@@ -17,10 +17,5 @@
             program.AddRange(data);
             return program;
         }
-
-        public static Execution ToExecution(this IEnumerable<byte> program, Context scope)
-        {
-            return new Execution(scope, program.ToArray());
-        }
     }
 }

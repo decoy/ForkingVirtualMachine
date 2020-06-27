@@ -10,7 +10,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Adds()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -22,7 +22,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void AddsNegatives()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(-5);
             ctx.Stack.Push(2);
 
@@ -34,7 +34,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void AddDoesNotOverflows()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(long.MaxValue);
             ctx.Stack.Push(long.MaxValue);
 
@@ -44,7 +44,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Divides()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -56,7 +56,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void DividesWithRemainder()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -69,7 +69,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Modulos()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -81,7 +81,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Multiplies()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -93,7 +93,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void MultiplyDoesNotOverflow()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(long.MaxValue);
             ctx.Stack.Push(2);
 
@@ -103,7 +103,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Subtracts()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(5);
             ctx.Stack.Push(2);
 
@@ -115,7 +115,7 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void SubtractDoesNotOverflow()
         {
-            var ctx = new Context();
+            var ctx = new Context(null);
             ctx.Stack.Push(long.MinValue);
             ctx.Stack.Push(long.MaxValue);
 

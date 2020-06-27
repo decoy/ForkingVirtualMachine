@@ -4,46 +4,31 @@
 
     public class Execution
     {
-        private ReadOnlyMemory<byte> data;
+        public readonly IVirtualMachine Machine;
 
-        public Context Scope { get; private set; }
+        public bool IsComplete => i == data.Length;
 
-        public int Index { get; private set; }
+        private readonly byte[] data;
+        private int i;
 
-        public int Length => data.Length;
-
-        public byte Current => data.Span[Index];
-
-        public bool IsComplete => Index >= data.Length;
-
-        public Execution(Context scope, byte[] data)
+        public Execution(Executable exe)
         {
-            Scope = scope;
-            this.data = data;
+            Machine = exe.Machine;
+            data = exe.Data.ToArray();
         }
 
         public byte Next()
         {
-            var res = Current;
-            Index++;
+            var res = data[i];
+            i++;
             return res;
         }
 
         public ReadOnlySpan<byte> Next(int len)
         {
-            var res = data.Span.Slice(Index, len);
-            Index += len;
+            var res = new ReadOnlySpan<byte>(data, i, len);
+            i += len;
             return res;
-        }
-
-        public ReadOnlySpan<byte> ToBytes()
-        {
-            return data.Span.Slice(Index);
-        }
-
-        public Execution Copy()
-        {
-            return new Execution(Scope, ToBytes().ToArray());
         }
     }
 }

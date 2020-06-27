@@ -4,10 +4,13 @@
 
     public class Context
     {
-        public Dictionary<byte, Execution> Functions { get; } = new Dictionary<byte, Execution>();
-        public Stack<long> Stack { get; } = new Stack<long>();
-        public Stack<Execution> Executions { get; } = new Stack<Execution>();
+        public readonly Dictionary<byte, Executable> Functions = new Dictionary<byte, Executable>();
+        public readonly Stack<long> Stack = new Stack<long>();
+        public readonly Execution Execution;
 
-        public Execution Execution => Executions.Peek();
+        public Context(Execution exe)
+        {
+            Execution = exe;
+        }
     }
 }

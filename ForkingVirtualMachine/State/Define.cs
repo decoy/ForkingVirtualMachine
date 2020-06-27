@@ -17,7 +17,8 @@
                 return;
             }
 
-            var exe = new Execution(context, context.Execution.Next(n).ToArray());
+
+            var exe = new Executable(null, null, context.Execution.Next(n).ToArray());
 
             if (context.Functions.ContainsKey(word))
             {
