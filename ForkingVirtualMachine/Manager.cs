@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace ForkingVirtualMachine
 {
@@ -23,10 +22,20 @@ namespace ForkingVirtualMachine
 
         public Executable Add(IVirtualMachine machine, byte word)
         {
-            var data = new[] { word };
+            return Add(machine, new[] { word });
+        }
+
+        public Executable Add(IVirtualMachine machine, byte[] data)
+        {
             var hash = hasher.ComputeHash(data);
             var key = Convert.ToBase64String(hash);
-            var exe = new Executable(machine, hash, new byte[] { word });
+            var exe = new Executable(machine, hash, data);
+
+            if (Machines.ContainsKey(key))
+            {
+                throw new Exception($"Operation {key} is already defined with {Machines[key].GetType().FullName}");
+            }
+
             Machines.Add(key, exe);
             return exe;
         }
@@ -41,7 +50,7 @@ namespace ForkingVirtualMachine
         {
             foreach (var exe in context.Functions)
             {
-                
+
             }
         }
 

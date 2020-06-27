@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace ForkingVirtualMachine.Test
 {
-
     [TestClass]
     public class StateMachineTests
     {
