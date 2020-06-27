@@ -6,7 +6,7 @@
 
         public void Execute(Context context)
         {
-            context.Stack.Push(context.Execution.Next());
+            context.Stack.Push(context.Next());
         }
     }
 }

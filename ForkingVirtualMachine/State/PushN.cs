@@ -6,10 +6,10 @@
 
         public void Execute(Context context)
         {
-            var n = context.Execution.Next();
+            var n = context.Next();
             for (var i = 0; i < n; i++)
             {
-                context.Stack.Push(context.Execution.Next());
+                context.Stack.Push(context.Next());
             }
         }
     }

@@ -8,8 +8,8 @@
 
         public void Execute(Context context)
         {
-            var word = context.Execution.Next();
-            var n = context.Execution.Next();
+            var word = context.Next();
+            var n = context.Next();
 
             if (n < 1) // undefine
             {
@@ -18,7 +18,7 @@
             }
 
 
-            var exe = new Executable(null, null, context.Execution.Next(n).ToArray());
+            var exe = new Executable(null, null, context.Next(n).ToArray());
 
             if (context.Functions.ContainsKey(word))
             {

@@ -8,7 +8,7 @@
         {
             if (context.Stack.Pop() != 0)
             {
-                context.Execution.Next();
+                context.Next();
             }
         }
     }

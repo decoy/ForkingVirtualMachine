@@ -9,23 +9,18 @@ namespace ForkingVirtualMachine.Test
     [TestClass]
     public class StateMachineTests
     {
-        private static Execution Create(byte[] data)
-        {
-            return new Execution(new Executable(null, null, data));
-        }
-
         [TestMethod]
         public void Defines()
         {
             byte word = 240;
-            var ctx = new Context(Create(new byte[]
+            var ctx = new Context(new byte[]
             {
                 word, 2, 9, 10, // define as 9, 10
                 250,            // random op
                 word, 0,        // undefine
                 251,            // random op
                 word, 0,
-            }));
+            });
 
             Define.Machine.Execute(ctx);
 
@@ -39,16 +34,16 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(10, exe.Data.Span[1]);
 
             // the execution has been forwarded
-            Assert.AreEqual(250, ctx.Execution.Next());
+            Assert.AreEqual(250, ctx.Next());
 
             // undefines
             Define.Machine.Execute(ctx);
             Assert.AreEqual(0, ctx.Functions.Count);
-            Assert.AreEqual(251, ctx.Execution.Next());
+            Assert.AreEqual(251, ctx.Next());
 
             // current behavior is no error on undefining
             Define.Machine.Execute(ctx);
-            Assert.IsTrue(ctx.Execution.IsComplete);
+            Assert.IsTrue(ctx.IsComplete);
         }
 
         [TestMethod]
@@ -107,26 +102,26 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Pushes()
         {
-            var ctx = new Context(Create(new byte[]
+            var ctx = new Context(new byte[]
             {
                 99, 100
-            }));
+            });
             ctx.Stack.Push(5);
 
             Push.Machine.Execute(ctx);
 
             Assert.AreEqual(99, ctx.Stack.Pop());
             Assert.AreEqual(5, ctx.Stack.Pop());
-            Assert.AreEqual(100, ctx.Execution.Next());
+            Assert.AreEqual(100, ctx.Next());
         }
 
         [TestMethod]
         public void PushesN()
         {
-            var ctx = new Context(Create(new byte[]
+            var ctx = new Context(new byte[]
             {
                 2, 99, 100, 101
-            }));
+            });
             ctx.Stack.Push(5);
 
             PushN.Machine.Execute(ctx);
@@ -134,7 +129,7 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(100, ctx.Stack.Pop());
             Assert.AreEqual(99, ctx.Stack.Pop());
             Assert.AreEqual(5, ctx.Stack.Pop());
-            Assert.AreEqual(101, ctx.Execution.Next());
+            Assert.AreEqual(101, ctx.Next());
         }
 
         [TestMethod]
@@ -148,7 +143,7 @@ namespace ForkingVirtualMachine.Test
 
             var exe = a.Concat(b).ToArray();
 
-            var ctx = new Context(Create(exe));
+            var ctx = new Context(exe);
             ctx.Stack.Push(5);
 
             PushInt64BigEndian.Machine.Execute(ctx);
@@ -156,7 +151,7 @@ namespace ForkingVirtualMachine.Test
 
             PushInt64BigEndian.Machine.Execute(ctx);
             Assert.AreEqual(long.MinValue, ctx.Stack.Pop());
-            Assert.IsTrue(ctx.Execution.IsComplete);
+            Assert.IsTrue(ctx.IsComplete);
         }
 
         [TestMethod]
@@ -170,7 +165,7 @@ namespace ForkingVirtualMachine.Test
 
             var exe = a.Concat(b).ToArray();
 
-            var ctx = new Context(Create(exe));
+            var ctx = new Context(exe);
             ctx.Stack.Push(5);
 
             PushInt64LittleEndian.Machine.Execute(ctx);
@@ -178,7 +173,7 @@ namespace ForkingVirtualMachine.Test
 
             PushInt64LittleEndian.Machine.Execute(ctx);
             Assert.AreEqual(long.MinValue, ctx.Stack.Pop());
-            Assert.IsTrue(ctx.Execution.IsComplete);
+            Assert.IsTrue(ctx.IsComplete);
         }
     }
 }

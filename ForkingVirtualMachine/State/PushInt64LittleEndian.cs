@@ -8,7 +8,7 @@
 
         public void Execute(Context context)
         {
-            context.Stack.Push(BinaryPrimitives.ReadInt64LittleEndian(context.Execution.Next(8)));
+            context.Stack.Push(BinaryPrimitives.ReadInt64LittleEndian(context.Next(8)));
         }
     }
 }
