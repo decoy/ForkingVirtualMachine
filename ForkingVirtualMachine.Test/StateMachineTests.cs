@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using ForkingVirtualMachine.Extensions;
+using System;
+using System.Linq;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -11,7 +13,6 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void Defines()
         {
-
             var ctx = new Context(new VirtualMachine(), new byte[]
             {
                 Reg.a, 2, 9, 10,    // define as 9, 10
@@ -71,6 +72,81 @@ namespace ForkingVirtualMachine.Test
             {
                 vm.Store(Reg.b, data2);
             });
+        }
+
+        [TestMethod]
+        public void Defines32()
+        {
+            var data = new byte[VirtualMachine.MAX_REGISTER_SIZE];
+
+            var len = BitConverter.GetBytes((uint)data.Length);
+
+            var program = new byte[]
+            {
+                Reg.a,
+            }
+            .Concat(len)
+            .Concat(data)
+            .ToArray();
+
+            var ctx = new Context(new VirtualMachine(), program);
+
+            Define32.Machine.Execute(ctx);
+
+            var a = ctx.Machine.Load(Reg.a);
+            Assert.AreEqual(VirtualMachine.MAX_REGISTER_SIZE, a.Length);
+        }
+
+        [TestMethod]
+        public void Defines32LimitsStore()
+        {
+            var data = new byte[VirtualMachine.MAX_REGISTER_SIZE + 1];
+
+            var len = BitConverter.GetBytes((uint)data.Length);
+
+            var program = new byte[]
+            {
+                Reg.a,
+            }
+            .Concat(len)
+            .Concat(data)
+            .ToArray();
+
+            var ctx = new Context(new VirtualMachine(), program);
+
+
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                Define32.Machine.Execute(ctx);
+            });
+
+            var a = ctx.Machine.Load(Reg.a);
+
+            Assert.AreEqual(0, a.Length);
+        }
+
+        [TestMethod]
+        public void Defines32RemNegatives()
+        {
+            var data = new byte[10];
+            var len = BitConverter.GetBytes(-10);
+
+            var program = new byte[]
+            {
+                Reg.a,
+            }
+            .Concat(len)
+            .Concat(data)
+            .ToArray();
+
+            var ctx = new Context(new VirtualMachine(), program);
+
+            ctx.Machine.Store(Reg.a, data);
+
+            Define32.Machine.Execute(ctx);
+
+            var a = ctx.Machine.Load(Reg.a);
+            Assert.AreEqual(0, a.Length);
         }
     }
 }

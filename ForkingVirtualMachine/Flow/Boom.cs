@@ -6,7 +6,7 @@
 
         public void Execute(Context context)
         {
-            throw new BoundaryException();
+            throw new SelfDestructException();
         }
     }
 }

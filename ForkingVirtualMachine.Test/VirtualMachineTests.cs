@@ -138,7 +138,7 @@ namespace ForkingVirtualMachine.Test
                 )
                 .ToArray();
 
-            Assert.ThrowsException<BoundaryException>(() =>
+            Assert.ThrowsException<SelfDestructException>(() =>
             {
                 VirtualMachine.Run(vm, new Context(vm, fun));
             });

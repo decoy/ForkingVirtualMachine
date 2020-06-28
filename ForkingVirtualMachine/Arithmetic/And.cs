@@ -1,7 +1,5 @@
 ﻿namespace ForkingVirtualMachine.Arithmetic
 {
-    using System.Numerics;
-
     public class And : IVirtualMachine
     {
         public static readonly IVirtualMachine Machine = new And();
