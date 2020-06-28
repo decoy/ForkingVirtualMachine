@@ -1,4 +1,6 @@
-﻿namespace ForkingVirtualMachine.Arithmetic
+﻿using System.Numerics;
+
+namespace ForkingVirtualMachine.Arithmetic
 {
     public class Abs : IVirtualMachine
     {
@@ -6,7 +8,8 @@
 
         public void Execute(Context context)
         {
-            context.Stack.Push(System.Math.Abs(context.Stack.Pop()));
+            var a = context.Machine.LoadInt(context.Next());
+            context.Machine.Store(context.Next(), BigInteger.Abs(a));
         }
     }
 }

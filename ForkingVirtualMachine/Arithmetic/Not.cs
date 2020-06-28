@@ -6,14 +6,9 @@
 
         public void Execute(Context context)
         {
-            if (context.Stack.Pop() == 0)
-            {
-                context.Stack.Push(1);
-            }
-            else
-            {
-                context.Stack.Push(0);
-            }
+            var a = context.Machine.LoadInt(context.Next());
+
+            context.Machine.Store(context.Next(), a != 0 ? And.True : And.False);
         }
     }
 }

@@ -48,10 +48,10 @@ namespace ForkingVirtualMachine
 
         public void Save(Context context)
         {
-            foreach (var exe in context.Functions)
-            {
+            //foreach (var exe in context.Machine.reg)
+            //{
 
-            }
+            //}
         }
 
         public void Save(Executable executable)

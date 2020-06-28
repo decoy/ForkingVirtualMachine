@@ -1,4 +1,6 @@
-﻿namespace ForkingVirtualMachine.Arithmetic
+﻿using System.Numerics;
+
+namespace ForkingVirtualMachine.Arithmetic
 {
     public class Max : IVirtualMachine
     {
@@ -6,7 +8,9 @@
 
         public void Execute(Context context)
         {
-            context.Stack.Push(System.Math.Max(context.Stack.Pop(), context.Stack.Pop()));
+            var a = context.Machine.LoadInt(context.Next());
+            var b = context.Machine.LoadInt(context.Next());
+            context.Machine.Store(context.Next(), BigInteger.Max(a, b));
         }
     }
 }

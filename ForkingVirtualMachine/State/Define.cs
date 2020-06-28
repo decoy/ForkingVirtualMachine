@@ -2,31 +2,22 @@
 {
     public class Define : IVirtualMachine
     {
-        public const byte Local = 0;
-
         public static readonly IVirtualMachine Machine = new Define();
 
         public void Execute(Context context)
         {
             var word = context.Next();
-            var n = context.Next();
 
-            if (n < 1) // undefine
+            var len = context.Next();
+
+            if (len == 0)
             {
-                context.Functions.Remove(word);
+                context.Machine.Store(word, null);
                 return;
             }
 
-            var exe = new Executable(null, null, context.Next(n).ToArray());
-
-            if (context.Functions.ContainsKey(word))
-            {
-                context.Functions[word] = exe;
-            }
-            else
-            {
-                context.Functions.Add(word, exe);
-            }
+            var data = context.Next(len);
+            context.Machine.Store(word, data.ToArray());
         }
     }
 }

@@ -6,7 +6,8 @@
 
         public void Execute(Context context)
         {
-            context.Stack.Push(-context.Stack.Pop());
+            var a = context.Machine.LoadInt(context.Next());
+            context.Machine.Store(context.Next(), (-a));
         }
     }
 }

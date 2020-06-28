@@ -1,14 +1,20 @@
 ﻿namespace ForkingVirtualMachine.Arithmetic
 {
+    using System.Numerics;
+
     public class DivideRem : IVirtualMachine
     {
         public static readonly IVirtualMachine Machine = new DivideRem();
 
         public void Execute(Context context)
         {
-            var res = System.Math.DivRem(context.Stack.Pop(), context.Stack.Pop(), out var rem);
-            context.Stack.Push(rem);
-            context.Stack.Push(res);
+            var a = context.Machine.LoadInt(context.Next());
+            var b = context.Machine.LoadInt(context.Next());
+
+            var res = BigInteger.DivRem(a, b, out var r);
+
+            context.Machine.Store(context.Next(), res);
+            context.Machine.Store(context.Next(), r);
         }
     }
 }

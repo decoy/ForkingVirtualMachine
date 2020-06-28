@@ -1,20 +1,19 @@
 ﻿namespace ForkingVirtualMachine
 {
     using System;
-    using System.Collections.Generic;
 
     public class Context
     {
-        public readonly Dictionary<byte, Executable> Functions = new Dictionary<byte, Executable>();
-        public readonly Stack<long> Stack = new Stack<long>();
+        public readonly VirtualMachine Machine;
 
         public bool IsComplete => i == data.Length;
 
         private readonly byte[] data;
         private int i;
 
-        public Context(byte[] data)
+        public Context(VirtualMachine machine, byte[] data)
         {
+            Machine = machine;
             this.data = data;
         }
 

@@ -6,14 +6,10 @@
 
         public void Execute(Context context)
         {
-            if (context.Stack.Pop() <= context.Stack.Pop())
-            {
-                context.Stack.Push(1);
-            }
-            else
-            {
-                context.Stack.Push(0);
-            }
+            var a = context.Machine.LoadInt(context.Next());
+            var b = context.Machine.LoadInt(context.Next());
+
+            context.Machine.Store(context.Next(), a == b ? And.True : And.False);
         }
     }
 }

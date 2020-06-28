@@ -7,119 +7,110 @@ namespace ForkingVirtualMachine.Test
     [TestClass]
     public class ArithmeticMachineTests
     {
+        public static Context CreateContext(byte[] data)
+        {
+            var machine = new VirtualMachine();
+            var context = new Context(machine, data);
+            return context;
+        }
+
         [TestMethod]
         public void Adds()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             Add.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 + 5, ctx.Stack.Pop());
+            Assert.AreEqual(2 + 5, ctx.Machine.LoadInt(3));
         }
 
         [TestMethod]
         public void AddsNegatives()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(-5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, -5);
 
             Add.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 + -5, ctx.Stack.Pop());
-        }
-
-        [TestMethod]
-        public void AddDoesNotOverflows()
-        {
-            var ctx = new Context(null);
-            ctx.Stack.Push(long.MaxValue);
-            ctx.Stack.Push(long.MaxValue);
-
-            Assert.ThrowsException<OverflowException>(() => Add.Machine.Execute(ctx));
+            Assert.AreEqual(2 + -5, ctx.Machine.LoadInt(3));
         }
 
         [TestMethod]
         public void Divides()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             Divide.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 / 5, ctx.Stack.Pop());
+            Assert.AreEqual(2 / 5, ctx.Machine.LoadInt(3));
         }
 
         [TestMethod]
         public void DividesWithRemainder()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3, 4
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             DivideRem.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 / 5, ctx.Stack.Pop());
-            Assert.AreEqual(2 % 5, ctx.Stack.Pop());
+            Assert.AreEqual(2 / 5, ctx.Machine.LoadInt(3));
+            Assert.AreEqual(2 % 5, ctx.Machine.LoadInt(4));
         }
 
         [TestMethod]
         public void Modulos()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3, 4
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             Modulo.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 % 5, ctx.Stack.Pop());
+            Assert.AreEqual(2 % 5, ctx.Machine.LoadInt(3));
         }
 
         [TestMethod]
         public void Multiplies()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3, 4
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             Multiply.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 * 5, ctx.Stack.Pop());
-        }
-
-        [TestMethod]
-        public void MultiplyDoesNotOverflow()
-        {
-            var ctx = new Context(null);
-            ctx.Stack.Push(long.MaxValue);
-            ctx.Stack.Push(2);
-
-            Assert.ThrowsException<OverflowException>(() => Multiply.Machine.Execute(ctx));
+            Assert.AreEqual(2 * 5, ctx.Machine.LoadInt(3));
         }
 
         [TestMethod]
         public void Subtracts()
         {
-            var ctx = new Context(null);
-            ctx.Stack.Push(5);
-            ctx.Stack.Push(2);
+            var ctx = CreateContext(new byte[] {
+                1, 2, 3, 4
+            });
+            ctx.Machine.Store(1, 2);
+            ctx.Machine.Store(2, 5);
 
             Subtract.Machine.Execute(ctx);
 
-            Assert.AreEqual(2 - 5, ctx.Stack.Pop());
-        }
-
-        [TestMethod]
-        public void SubtractDoesNotOverflow()
-        {
-            var ctx = new Context(null);
-            ctx.Stack.Push(long.MinValue);
-            ctx.Stack.Push(long.MaxValue);
-
-            Assert.ThrowsException<OverflowException>(() => Subtract.Machine.Execute(ctx));
+            Assert.AreEqual(2 - 5, ctx.Machine.LoadInt(3));
         }
     }
 }
