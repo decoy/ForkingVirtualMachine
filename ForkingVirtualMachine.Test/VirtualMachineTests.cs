@@ -4,192 +4,169 @@ using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using ForkingVirtualMachine.Flow;
+using System.Numerics;
 
 namespace ForkingVirtualMachine.Test
 {
-    //[TestClass]
-    //public class VirtualMachineTests
-    //{
-    //    public static class Op
-    //    {
-    //        public const byte No = 0;
-    //        public const byte Push = 1;
-    //        public const byte PushN = 2;
-    //        public const byte Define = 3;
-    //        public const byte Add = 20;
-    //        public const byte Print = 100;
-    //        public const byte Dupe = 22;
-    //    }
+    [TestClass]
+    public class VirtualMachineTests
+    {
+        private static VirtualMachine CreateTestVm(Collector col)
+        {
+            var vm = new VirtualMachine();
+            vm.Set(Reg.No, new Executable(SafeWord.Machine, null, null));
+            vm.Set(Reg.Boom, new Executable(Boom.Machine, null, null));
+            vm.Set(Reg.Define, new Executable(Define.Machine, null, null));
 
-    //    public class Collector : IVirtualMachine
-    //    {
-    //        public Queue<long> Collected { get; } = new Queue<long>();
+            vm.Set(Reg.Add, new Executable(Add.Machine, null, null));
+            vm.Set(Reg.Print, new Executable(col, null, null));
 
-    //        public void Execute(Context context)
-    //        {
-    //            Collected.Enqueue(context.Stack.Pop());
-    //        }
-    //    }
+            var vm2 = new VirtualMachine();
+            vm.Set(Reg.Math.Namespace, new Executable(vm2, null, null));
 
-    //    private static VirtualMachine CreateTestVm(Collector col)
-    //    {
-    //        return new VirtualMachine()
-    //            .Add(Op.No, SafeWord.Machine)
-    //            .Add(Op.Push, Push.Machine)
-    //            .Add(Op.Add, Add.Machine)
-    //            .Add(Op.Define, Define.Machine)
-    //            .Add(Op.PushN, PushN.Machine)
-    //            .Add(Op.Dupe, Dupe.Machine)
-    //            .Add(Op.Print, col);
-    //    }
+            vm2.Set(Reg.Math.Subtract, new Executable(Subtract.Machine, null, null));
+            vm2.Set(Reg.Math.DivRem, new Executable(DivideRem.Machine, null, null));
 
-    //    [TestMethod]
-    //    public void MoreTesting()
-    //    {
-    //        var col = new Collector();
-    //        var trash = CreateTestVm(col);
-    //        var router = new Router(trash.Machines);
-    //        var ctx = trash.Fork();
-    //        var vm = new Operation(router);
+            return vm;
+        }
 
-    //        byte word = 240;
+        [TestMethod]
+        public void RunsFunction()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
-    //        var program = new List<byte>()
-    //            // create a function (adds 100)
-    //            .AddProgram(Op.Define, word)
-    //            .AddData(Op.Push, 100, Op.Add)
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.x
+                )
+                .AddData(
+                    Reg.Define, Reg.a, 1, 5,
+                    Reg.Define, Reg.b, 1, 2,
+                    Reg.Add, Reg.a, Reg.b, Reg.c
+                )
+                .AddProgram(
+                    Reg.Print, Reg.c,
+                    Reg.x,
+                    Reg.Print, Reg.c
+                )
+                .ToArray();
 
-    //            // Push 5 and 2 to the stack
-    //            .AddProgram(Op.PushN)
-    //            .AddData(5, 2)
+            VirtualMachine.Run(vm, new Context(vm, fun));
 
-    //            // add 5 + 2, dupe, print
-    //            .AddProgram(Op.Add, Op.Dupe, Op.Print)
+            Assert.AreEqual(0, col.Collected.Dequeue());
+            Assert.AreEqual(7, col.Collected.Dequeue());
+        }
 
-    //            // then run the program +100 funcion and print
-    //            .AddProgram(word, Op.Print)
-    //            .ToExecution(ctx);
+        [TestMethod]
+        public void RunsMachine()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.a, 1, 5,
+                    Reg.Define, Reg.b, 1, 2,
+                    Reg.Add, Reg.a, Reg.b, Reg.c,
+                    Reg.Print, Reg.c
+                )
+                .ToArray();
 
-    //        ctx.Executions.Push(program);
+            VirtualMachine.Run(vm, new Context(vm, fun));
 
-    //        while (ctx.Executions.Count > 0)
-    //        {
-    //            vm.Execute(ctx);
-    //        }
+            Assert.AreEqual(7, col.Collected.Dequeue());
+        }
 
-    //        var x = col;
-    //    }
+        [TestMethod]
+        public void RunsNamespace()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
-    //    [TestMethod]
-    //    public void RunsMachine()
-    //    {
-    //        var col = new Collector();
-    //        var vm = CreateTestVm(col);
-    //        var ctx = vm.Fork();
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.a, 1, 5,
+                    Reg.Define, Reg.b, 1, 2,
+                    Reg.Math.Namespace, Reg.Math.Subtract, Reg.a, Reg.b, Reg.c,
+                    Reg.Print, Reg.c
+                )
+                .ToArray();
 
-    //        var program = new List<byte>()
-    //            .AddProgram(Op.Push, 5, Op.Push, 2, Op.Add, Op.Print)
-    //            .ToExecution(ctx);
+            VirtualMachine.Run(vm, new Context(vm, fun));
 
+            Assert.AreEqual(3, col.Collected.Dequeue());
+        }
 
-    //        ctx.Executions.Push(program);
+        [TestMethod]
+        public void RunsSafeWord()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
-    //        vm.Run(ctx);
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.a, 1, 5,
+                    Reg.Define, Reg.b, 1, 2,
+                    Reg.No,
+                    Reg.Add, Reg.a, Reg.b, Reg.c,
+                    Reg.Print, Reg.c
+                )
+                .ToArray();
 
-    //        Assert.AreEqual(7, col.Collected.Dequeue());
-    //    }
+            Assert.ThrowsException<SafeWordException>(() =>
+            {
+                VirtualMachine.Run(vm, new Context(vm, fun));
+            });
 
-    //    [TestMethod]
-    //    public void TestyTestums2()
-    //    {
-    //        var col = new Collector();
-    //        var trash = CreateTestVm(col);
-    //        var router = new Router(trash.Machines);
-    //        var ctx = trash.Fork();
-    //        var vm = new Operation(router);
+            Assert.AreEqual(0, col.Collected.Count);
+        }
 
-    //        byte word = 240;
+        [TestMethod]
+        public void RunsBoom()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
-    //        var program = new List<byte>()
-    //            // create a function (adds 100)
-    //            .AddProgram(Op.Define, word)
-    //            .AddData(Op.Push, 100, Op.Add)
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.a, 1, 5,
+                    Reg.Define, Reg.b, 1, 2,
+                    Reg.Boom,
+                    Reg.Add, Reg.a, Reg.b, Reg.c,
+                    Reg.Print, Reg.c
+                )
+                .ToArray();
 
-    //            // Push 5 and 2 to the stack
-    //            .AddProgram(Op.PushN)
-    //            .AddData(5, 2)
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                VirtualMachine.Run(vm, new Context(vm, fun));
+            });
 
-    //            // add 5 + 2, dupe, print
-    //            .AddProgram(Op.Add, Op.Dupe, Op.Print)
+            Assert.AreEqual(0, col.Collected.Count);
+        }
 
-    //            // then run the program +100 funcion and print
-    //            .AddProgram(word, Op.Print)
-    //            .ToExecution(ctx);
+        [TestMethod]
+        public void LimitsDepth()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
 
+            var fun = new List<byte>()
+                .AddProgram(
+                    Reg.Define, Reg.a, 1, Reg.b,
+                    Reg.Define, Reg.b, 1, Reg.a,
+                    Reg.a, // goto 1
+                    Reg.Print, Reg.a
+                )
+                .ToArray();
 
-    //        ctx.Executions.Push(program);
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                VirtualMachine.Run(vm, new Context(vm, fun));
+            });
 
-    //        while (ctx.Executions.Count > 0)
-    //            vm.Execute(ctx);
-
-    //        Assert.AreEqual(5 + 2, col.Collected.Dequeue());
-    //        Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
-
-    //        var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
-    //        var program2 = new List<byte>()
-    //            .AddProgram(Op.Push, 99, word, Op.Print)
-    //            .ToExecution(ctx2);
-
-    //        ctx2.Executions.Push(program2);
-    //        while (ctx.Executions.Count > 0)
-    //            vm.Execute(ctx2);
-
-    //        Assert.AreEqual(99 + 100, col.Collected.Dequeue());
-    //    }
-
-    //    [TestMethod]
-    //    public void TestyTestums()
-    //    {
-    //        var col = new Collector();
-    //        var vm = CreateTestVm(col);
-    //        var ctx = vm.Fork();
-
-    //        byte word = 240;
-
-    //        var program = new List<byte>()
-    //            // create a function (adds 100)
-    //            .AddProgram(Op.Define, word)
-    //            .AddData(Op.Push, 100, Op.Add)
-
-    //            // Push 5 and 2 to the stack
-    //            .AddProgram(Op.PushN)
-    //            .AddData(5, 2)
-
-    //            // add 5 + 2, dupe, print
-    //            .AddProgram(Op.Add, Op.Dupe, Op.Print)
-
-    //            // then run the program +100 funcion and print
-    //            .AddProgram(word, Op.Print)
-    //            .ToExecution(ctx);
-
-
-    //        ctx.Executions.Push(program);
-
-    //        vm.Run(ctx);
-
-    //        Assert.AreEqual(5 + 2, col.Collected.Dequeue());
-    //        Assert.AreEqual(5 + 2 + 100, col.Collected.Dequeue());
-
-    //        var ctx2 = ctx.Fork(word, Op.Print, Op.Push);
-    //        var program2 = new List<byte>()
-    //            .AddProgram(Op.Push, 99, word, Op.Print)
-    //            .ToExecution(ctx2);
-
-    //        ctx2.Executions.Push(program2);
-    //        vm.Run(ctx2);
-
-    //        Assert.AreEqual(99 + 100, col.Collected.Dequeue());
-    //    }
-    //}
+            Assert.AreEqual(0, col.Collected.Count);
+        }
+    }
 }

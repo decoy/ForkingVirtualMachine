@@ -1,6 +1,5 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using ForkingVirtualMachine.Arithmetic;
     using System;
     using System.Collections.Generic;
 
@@ -28,20 +27,22 @@
         {
             if (context.Machine.depth >= MAX_DEPTH)
             {
-                throw new Exception("boom");
+                throw new BoundaryException();
             }
 
             var op = context.Next();
             if (!Registers.ContainsKey(op))
             {
-                throw new Exception("unknown op: " + op);
+                return;
             }
 
             var next = Registers[op];
             if (next.Machine == this)
             {
+                context.Machine.depth++;
                 var exe = new Context(this, next.Data.ToArray());
                 Run(next.Machine, exe);
+                context.Machine.depth--;
             }
             else
             {
@@ -75,6 +76,11 @@
             if (word == 0)
             {
                 return; // throw it away
+            }
+
+            if (word == 1)
+            {
+                throw new BoundaryException(); 
             }
 
             if (data == null || data.Length == 0)
