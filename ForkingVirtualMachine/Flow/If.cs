@@ -1,6 +1,6 @@
 ﻿namespace ForkingVirtualMachine.Flow
 {
-    using System.Numerics;
+    using Arithmetic;
 
     public class If : IVirtualMachine
     {
@@ -8,12 +8,7 @@
 
         public void Execute(Context context)
         {
-            var x = new BigInteger(context
-                .Machine
-                .Load(context.Next())
-                .Span);
-
-            if (x != 0)
+            if (context.Machine.LoadBool(context.Next()))
             {
                 context.Next();
             }

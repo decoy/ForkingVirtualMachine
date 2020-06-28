@@ -5,7 +5,7 @@
 
     public static class ProgramBuilderExtensions
     {
-        public static List<byte> AddProgram(this List<byte> program, params byte[] data)
+        public static List<byte> Add(this List<byte> program, params byte[] data)
         {
             program.AddRange(data);
             return program;

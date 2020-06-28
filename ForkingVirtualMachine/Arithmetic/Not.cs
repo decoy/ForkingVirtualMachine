@@ -6,9 +6,9 @@
 
         public void Execute(Context context)
         {
-            var a = context.Machine.LoadInt(context.Next());
+            var a = context.Machine.LoadBool(context.Next());
 
-            context.Machine.Store(context.Next(), a != 0 ? And.True : And.False);
+            context.Machine.Store(context.Next(), a ? And.False : And.True);
         }
     }
 }

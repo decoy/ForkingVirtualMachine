@@ -37,7 +37,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.x
                 )
                 .AddData(
@@ -45,7 +45,7 @@ namespace ForkingVirtualMachine.Test
                     Reg.Define, Reg.b, 1, 2,
                     Reg.Add, Reg.a, Reg.b, Reg.c
                 )
-                .AddProgram(
+                .Add(
                     Reg.Print, Reg.c,
                     Reg.x,
                     Reg.Print, Reg.c
@@ -65,7 +65,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.a, 1, 5,
                     Reg.Define, Reg.b, 1, 2,
                     Reg.Add, Reg.a, Reg.b, Reg.c,
@@ -85,7 +85,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.a, 1, 5,
                     Reg.Define, Reg.b, 1, 2,
                     Reg.Math.Namespace, Reg.Math.Subtract, Reg.a, Reg.b, Reg.c,
@@ -105,7 +105,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.a, 1, 5,
                     Reg.Define, Reg.b, 1, 2,
                     Reg.No,
@@ -129,7 +129,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.a, 1, 5,
                     Reg.Define, Reg.b, 1, 2,
                     Reg.Boom,
@@ -153,7 +153,7 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
 
             var fun = new List<byte>()
-                .AddProgram(
+                .Add(
                     Reg.Define, Reg.a, 1, Reg.b,
                     Reg.Define, Reg.b, 1, Reg.a,
                     Reg.a, // goto 1

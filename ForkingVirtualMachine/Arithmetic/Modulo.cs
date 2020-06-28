@@ -8,7 +8,7 @@
         {
             var a = context.Machine.LoadInt(context.Next());
             var b = context.Machine.LoadInt(context.Next());
-            context.Machine.Store(context.Next(), (a % b));
+            context.Machine.Store(context.Next(), a % b);
         }
     }
 }

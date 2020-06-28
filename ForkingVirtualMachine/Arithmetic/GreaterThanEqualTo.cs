@@ -1,8 +1,8 @@
 ﻿namespace ForkingVirtualMachine.Arithmetic
 {
-    public class GreatherThanEqualTo : IVirtualMachine
+    public class GreaterThanEqualTo : IVirtualMachine
     {
-        public static readonly IVirtualMachine Machine = new GreatherThanEqualTo();
+        public static readonly IVirtualMachine Machine = new GreaterThanEqualTo();
 
         public void Execute(Context context)
         {

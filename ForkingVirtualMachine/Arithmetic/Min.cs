@@ -10,7 +10,7 @@
         {
             var a = context.Machine.LoadInt(context.Next());
             var b = context.Machine.LoadInt(context.Next());
-            context.Machine.Store(context.Next(), BigInteger.Max(a, b));
+            context.Machine.Store(context.Next(), BigInteger.Min(a, b));
         }
     }
 }

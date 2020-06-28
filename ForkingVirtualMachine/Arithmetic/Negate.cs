@@ -7,7 +7,7 @@
         public void Execute(Context context)
         {
             var a = context.Machine.LoadInt(context.Next());
-            context.Machine.Store(context.Next(), (-a));
+            context.Machine.Store(context.Next(), -a);
         }
     }
 }
