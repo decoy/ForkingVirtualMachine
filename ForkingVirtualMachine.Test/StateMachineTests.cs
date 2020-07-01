@@ -1,7 +1,6 @@
 ﻿using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using ForkingVirtualMachine.Extensions;
 using System;
 using System.Linq;
 

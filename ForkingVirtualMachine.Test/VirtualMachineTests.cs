@@ -1,10 +1,8 @@
-using ForkingVirtualMachine.Extensions;
 using ForkingVirtualMachine.Arithmetic;
+using ForkingVirtualMachine.Flow;
 using ForkingVirtualMachine.State;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using ForkingVirtualMachine.Flow;
-using System.Numerics;
+using System;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -14,20 +12,20 @@ namespace ForkingVirtualMachine.Test
         private static VirtualMachine CreateTestVm(Collector col)
         {
             var vm = new VirtualMachine();
-            vm.Set(Reg.No, new Executable(SafeWord.Machine, null, null));
-            vm.Set(Reg.Boom, new Executable(Boom.Machine, null, null));
-            vm.Set(Reg.Push, new Executable(Push.Machine, null, null));
-            vm.Set(Reg.Push32, new Executable(Push.Machine, null, null));
-            vm.Set(Reg.Define, new Executable(new Define(vm), null, null));
+            vm.Set(Op.No, new Executable(SafeWord.Machine, null, null));
+            vm.Set(Op.Boom, new Executable(Boom.Machine, null, null));
+            vm.Set(Op.Push, new Executable(Push8.Machine, null, null));
+            vm.Set(Op.Push32, new Executable(Push8.Machine, null, null));
+            vm.Set(Op.Define, new Executable(new Define(vm), null, null));
 
-            vm.Set(Reg.Add, new Executable(Add.Machine, null, null));
-            vm.Set(Reg.Print, new Executable(col, null, null));
+            vm.Set(Op.Add, new Executable(Add.Machine, null, null));
+            vm.Set(Op.Print, new Executable(col, null, null));
 
             var vm2 = new VirtualMachine();
-            vm.Set(Reg.Math.Namespace, new Executable(vm2, null, null));
+            vm.Set(Op.Math.Namespace, new Executable(vm2, null, null));
 
-            vm2.Set(Reg.Math.Subtract, new Executable(Subtract.Machine, null, null));
-            vm2.Set(Reg.Math.DivRem, new Executable(DivideRem.Machine, null, null));
+            vm2.Set(Op.Math.Subtract, new Executable(Subtract.Machine, null, null));
+            vm2.Set(Op.Math.DivRem, new Executable(DivideRem.Machine, null, null));
 
             return vm;
         }
@@ -39,32 +37,28 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
             var ctx = new Context();
 
-            var fun = new List<byte>()
+            var fun = ProgramBuilder.Create()
+                .Define(Op.x, (p) => p
+                    .Push(1000)
+                    .Add(Op.Add)
+                 )
+                .Push(long.MaxValue)
+                .Add(Op.Print)
                 .Add(
-                    Reg.NoOp,
-                    Reg.Push
-                )
-                .AddData(
-                    Reg.Push, 1, 100,
-                    Reg.Add
-                )
-                .Add(
-                    Reg.Push, 1, Reg.x,
-                    Reg.Define,
+                    Op.Push, 1, 99,
+                    Op.Print,
 
-                    Reg.Push, 1, 99,
-                    Reg.Print,
-
-                    Reg.Push, 1, 7,
-                    Reg.x,
-                    Reg.Print
+                    Op.Push, 1, 7,
+                    Op.x,
+                    Op.Print
                 )
-                .ToArray();
+                .ToBytes();
 
             VirtualMachine.Run(vm, new Execution(ctx, fun));
 
+            Assert.AreEqual(long.MaxValue, col.Collected.Dequeue());
             Assert.AreEqual(99, col.Collected.Dequeue());
-            Assert.AreEqual(107, col.Collected.Dequeue());
+            Assert.AreEqual(1007, col.Collected.Dequeue());
         }
 
         [TestMethod]
@@ -74,14 +68,14 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
             var ctx = new Context();
 
-            var fun = new List<byte>()
+            var fun = ProgramBuilder.Create()
                 .Add(
-                    Reg.Push, 1, 2,
-                    Reg.Push, 1, 5,
-                    Reg.Add,
-                    Reg.Print
+                    Op.Push, 1, 2,
+                    Op.Push, 1, 5,
+                    Op.Add,
+                    Op.Print
                 )
-                .ToArray();
+                .ToBytes();
 
             VirtualMachine.Run(vm, new Execution(ctx, fun));
 
@@ -95,18 +89,17 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
             var ctx = new Context();
 
-            var fun = new List<byte>()
+            var fun = ProgramBuilder.Create()
                 .Add(
-                Reg.Push, 1, 2,
-                    Reg.Push, 1, 5,
-                    Reg.Push, 1, 7,
+                    Op.Push, 1, 5,
+                    Op.Push, 1, 7,
 
-                    Reg.Math.Namespace,
-                    Reg.Math.Subtract,
+                    Op.Math.Namespace,
+                    Op.Math.Subtract,
 
-                    Reg.Print
+                    Op.Print
                 )
-                .ToArray();
+                .ToBytes();
 
             VirtualMachine.Run(vm, new Execution(ctx, fun));
 
@@ -120,12 +113,12 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
             var ctx = new Context();
 
-            var fun = new List<byte>()
+            var fun = ProgramBuilder.Create()
                 .Add(
-                    Reg.No,
-                    Reg.Boom
+                    Op.No,
+                    Op.Boom
                 )
-                .ToArray();
+                .ToBytes();
 
             var exe = new Execution(ctx, fun);
             VirtualMachine.Run(vm, exe);
@@ -141,24 +134,45 @@ namespace ForkingVirtualMachine.Test
             var vm = CreateTestVm(col);
             var ctx = new Context();
 
-            var fun = new List<byte>()
+            var fun = ProgramBuilder.Create()
                 .Add(
-                    Reg.Push, 1, Reg.y,
-                    Reg.Push, 1, Reg.x,
-                    Reg.Define,
+                    Op.Push, 1, Op.y,
+                    Op.Push, 1, Op.x,
+                    Op.Define,
 
-                    Reg.Push, 1, Reg.x,
-                    Reg.Push, 1, Reg.y,
-                    Reg.Define,
+                    Op.Push, 1, Op.x,
+                    Op.Push, 1, Op.y,
+                    Op.Define,
 
-                    Reg.x
+                    Op.x
                 )
-                .ToArray();
+                .ToBytes();
 
             Assert.ThrowsException<BoundaryException>(() =>
             {
                 VirtualMachine.Run(vm, new Execution(ctx, fun));
             });
+
+            Assert.AreEqual(Constants.MAX_DEPTH, ctx.Depth);
+        }
+
+        [TestMethod]
+        public void LimitsTicks()
+        {
+            var col = new Collector();
+            var vm = CreateTestVm(col);
+            var ctx = new Context();
+
+            var noop = new Span<byte>(new byte[Constants.MAX_TICKS + 1]);
+            noop.Fill(Op.NoOp);
+            var fun = noop.ToArray();
+
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                VirtualMachine.Run(vm, new Execution(ctx, fun));
+            });
+
+            Assert.AreEqual(Constants.MAX_TICKS, ctx.Ticks);
         }
     }
 }

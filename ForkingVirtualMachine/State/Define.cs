@@ -2,18 +2,31 @@
 {
     public class Define : IVirtualMachine
     {
-        private VirtualMachine local;
+        private VirtualMachine machine;
 
-        public Define(VirtualMachine local)
+        public Define(VirtualMachine machine)
         {
-            this.local = local;
+            this.machine = machine;
         }
 
         public void Execute(Execution execution)
         {
-            var word = execution.Context.Pop();
+            var word = execution.Context.Pop()[0];
             var data = execution.Context.Pop();
-            local.Store(word[0], data);
+
+            if (word == 0)
+            {
+                return; // hrm.
+            }
+
+            if (data.Length == 0)
+            {
+                machine.Operations.Remove(word);
+            }
+            else
+            {
+                machine.Set(word, new Executable(machine, null, data));
+            }
         }
     }
 }

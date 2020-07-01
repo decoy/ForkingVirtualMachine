@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-
-namespace ForkingVirtualMachine
+﻿namespace ForkingVirtualMachine
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.Cryptography;
+
     public class Manager
     {
         private HashAlgorithm hasher = SHA256.Create();
 
-        public Dictionary<string, Executable> Machines { get; }
+        public readonly Dictionary<string, Executable> Machines;
 
         public Manager()
         {
@@ -46,15 +47,32 @@ namespace ForkingVirtualMachine
             return Machines[key];
         }
 
-        public void Save(Execution execution)
+        public void Save(VirtualMachine machine)
         {
-            //foreach (var exe in context.Machine.reg)
-            //{
 
-            //}
+
+
+            //var me = machine.Operations.Select(op =>
+            //{
+            //new byte[] {
+            //       Constants.Push32,
+            //       op.Value.Data.Length,
+            //       Constants.Push8,
+            //       op.Key
+            //});
+
+            foreach (var op in machine.Operations)
+            {
+                var id = Save(op.Value);
+
+                // if scope == 0 it belongs to this one.
+                var scope = op.Value.Scope;
+
+
+            }
         }
 
-        public void Save(Executable executable)
+        public ReadOnlySpan<byte> Save(Executable executable)
         {
             if (executable.Id.Length == 0)
             {
@@ -63,8 +81,11 @@ namespace ForkingVirtualMachine
                 // does this do i/o? for the try?
                 if (hasher.TryComputeHash(executable.Data, id, out var _))
                 {
+                    return id;
                 }
             }
+
+            return null;
         }
     }
 }

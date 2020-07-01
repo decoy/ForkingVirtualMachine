@@ -1,14 +1,13 @@
 ﻿namespace ForkingVirtualMachine.Test
 {
-    public class Reg
+    public class Op
     {
-        public const byte No = 0;
-        public const byte Boom = 1;
-        public const byte Push = 2;
+        public const byte No = Constants.SafeWord;
+        public const byte Boom = Constants.SelfDestruct;
 
-        public const byte Define = 3;
-
-        public const byte Push32 = 31;
+        public const byte Push = Constants.Push8;
+        public const byte Push32 = Constants.Push32;
+        public const byte Define = Constants.Define;
 
         public const byte Add = 20;
         public const byte Print = 30;

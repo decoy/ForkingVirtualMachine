@@ -4,7 +4,7 @@
 
     public class VirtualMachine : IVirtualMachine
     {
-        private readonly Dictionary<byte, Executable> Operations = new Dictionary<byte, Executable>();
+        public readonly Dictionary<byte, Executable> Operations = new Dictionary<byte, Executable>();
 
         public static void Run(IVirtualMachine machine, Execution exe)
         {
@@ -53,23 +53,6 @@
             {
                 Operations.Add(word, exe);
             }
-        }
-
-        public void Store(byte word, byte[] data)
-        {
-            if (word == 0)
-            {
-                return;
-            }
-
-            if (data == null || data.Length == 0)
-            {
-                Operations.Remove(word);
-                return;
-            }
-
-            var exe = new Executable(this, null, data);
-            Set(word, exe);
         }
     }
 }

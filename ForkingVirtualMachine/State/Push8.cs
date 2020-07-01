@@ -1,8 +1,8 @@
 ﻿namespace ForkingVirtualMachine.State
 {
-    public class Push : IVirtualMachine
+    public class Push8 : IVirtualMachine
     {
-        public static readonly IVirtualMachine Machine = new Push();
+        public static readonly IVirtualMachine Machine = new Push8();
 
         public void Execute(Execution execution)
         {
