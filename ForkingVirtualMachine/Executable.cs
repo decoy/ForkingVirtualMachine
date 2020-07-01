@@ -4,15 +4,15 @@
 
     public class Executable
     {
-        public readonly ReadOnlyMemory<byte> Id;
+        public readonly byte[] Id;
 
-        public readonly ReadOnlyMemory<byte> Scope;
+        public readonly byte[] Scope;
 
-        public readonly ReadOnlyMemory<byte> Data;
+        public readonly byte[] Data;
 
         public readonly IVirtualMachine Machine;
 
-        public Executable(IVirtualMachine machine, ReadOnlyMemory<byte> id, ReadOnlyMemory<byte> data)
+        public Executable(IVirtualMachine machine, byte[] id, byte[] data)
         {
             Id = id;
             Data = data;

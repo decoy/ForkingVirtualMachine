@@ -4,11 +4,13 @@
     {
         public static readonly IVirtualMachine Machine = new Not();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            var a = context.Machine.LoadBool(context.Next());
+            var a = execution.Context.PopBool();
 
-            context.Machine.Store(context.Next(), a ? And.False : And.True);
+            execution.Context.Push(a
+              ? Constants.False
+              : Constants.True);
         }
     }
 }

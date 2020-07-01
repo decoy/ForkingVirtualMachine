@@ -2,6 +2,6 @@
 {
     public interface IVirtualMachine
     {
-        public void Execute(Context context);
+        public void Execute(Execution execution);
     }
 }

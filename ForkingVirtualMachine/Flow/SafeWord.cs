@@ -4,9 +4,9 @@
     {
         public static readonly IVirtualMachine Machine = new SafeWord();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            throw new SafeWordException();
+            execution.Stop();
         }
     }
 }

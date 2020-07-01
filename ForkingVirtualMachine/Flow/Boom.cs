@@ -4,7 +4,7 @@
     {
         public static readonly IVirtualMachine Machine = new Boom();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
             throw new SelfDestructException();
         }

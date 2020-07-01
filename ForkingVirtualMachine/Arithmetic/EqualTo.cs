@@ -4,12 +4,14 @@
     {
         public static readonly IVirtualMachine Machine = new EqualTo();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            var a = context.Machine.LoadInt(context.Next());
-            var b = context.Machine.LoadInt(context.Next());
+            var a = execution.Context.PopInt();
+            var b = execution.Context.PopInt();
 
-            context.Machine.Store(context.Next(), a == b ? And.True : And.False);
+            execution.Context.Push(a == b
+                ? Constants.True
+                : Constants.False);
         }
     }
 }

@@ -1,16 +1,15 @@
 ﻿namespace ForkingVirtualMachine.Flow
 {
-    using Arithmetic;
-
     public class If : IVirtualMachine
     {
         public static readonly IVirtualMachine Machine = new If();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            if (context.Machine.LoadBool(context.Next()))
+            // TODO: branch0 seems to be more common?
+            if (!execution.Context.PopBool())
             {
-                context.Next();
+                execution.Next();
             }
         }
     }

@@ -46,7 +46,7 @@ namespace ForkingVirtualMachine
             return Machines[key];
         }
 
-        public void Save(Context context)
+        public void Save(Execution execution)
         {
             //foreach (var exe in context.Machine.reg)
             //{
@@ -56,12 +56,12 @@ namespace ForkingVirtualMachine
 
         public void Save(Executable executable)
         {
-            if (executable.Id.IsEmpty)
+            if (executable.Id.Length == 0)
             {
                 var id = new Span<byte>(new byte[hasher.HashSize]);
 
                 // does this do i/o? for the try?
-                if (hasher.TryComputeHash(executable.Data.Span, id, out var _))
+                if (hasher.TryComputeHash(executable.Data, id, out var _))
                 {
                 }
             }

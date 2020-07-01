@@ -4,15 +4,13 @@
     {
         public static readonly IVirtualMachine Machine = new And();
 
-        public static readonly byte[] True = new byte[1] { 1 };
-
-        public static readonly byte[] False = new byte[0];
-
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            var a = context.Machine.LoadBool(context.Next());
-            var b = context.Machine.LoadBool(context.Next());
-            context.Machine.Store(context.Next(), (a && b) ? And.True : And.False);
+            var a = execution.Context.PopBool();
+            var b = execution.Context.PopBool();
+            execution.Context.Push((a && b) 
+                ? Constants.True 
+                : Constants.False);
         }
     }
 }

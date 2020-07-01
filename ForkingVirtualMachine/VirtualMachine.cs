@@ -5,17 +5,9 @@
 
     public class VirtualMachine : IVirtualMachine
     {
-        public const int MAX_REGISTER_SIZE = 1024 * 1024;
+        private readonly Dictionary<byte, Executable> Operations = new Dictionary<byte, Executable>();
 
-        public const int MAX_DEPTH = 1024;
-
-        public static readonly ReadOnlyMemory<byte> Empty = new byte[0];
-
-        private int depth = 0;
-
-        private readonly Dictionary<byte, Executable> Registers = new Dictionary<byte, Executable>();
-
-        public static void Run(IVirtualMachine machine, Context exe)
+        public static void Run(IVirtualMachine machine, Execution exe)
         {
             while (!exe.IsComplete)
             {
@@ -23,75 +15,67 @@
             }
         }
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            if (context.Machine.depth >= MAX_DEPTH)
+            if (execution.Context.Ticks >= Constants.MAX_TICKS || execution.Context.Depth >= Constants.MAX_DEPTH)
             {
                 throw new BoundaryException();
             }
 
-            var op = context.Next();
-            if (!Registers.ContainsKey(op))
+            execution.Context.Ticks++;
+
+            var op = execution.Next();
+            if (!Operations.ContainsKey(op))
             {
-                return;
+                return; // these are noops?
             }
 
-            var next = Registers[op];
+            var next = Operations[op];
             if (next.Machine == this)
             {
-                context.Machine.depth++;
-                var exe = new Context(this, next.Data.ToArray());
-                Run(next.Machine, exe);
-                context.Machine.depth--;
+                execution.Context.Depth++;
+                var exe = new Execution(execution.Context, next.Data);
+                Run(this, exe);
+                execution.Context.Depth--;
             }
             else
             {
-                next.Machine.Execute(context);
+                next.Machine.Execute(execution);
             }
         }
 
         public void Set(byte word, Executable exe)
         {
-            if (Registers.ContainsKey(word))
+            if (Operations.ContainsKey(word))
             {
-                Registers[word] = exe;
+                Operations[word] = exe;
             }
             else
             {
-                Registers.Add(word, exe);
+                Operations.Add(word, exe);
             }
         }
 
-        public ReadOnlyMemory<byte> Load(byte word)
+        public byte[] Load(byte word)
         {
-            if (Registers.ContainsKey(word))
+            if (Operations.ContainsKey(word))
             {
-                return Registers[word].Data;
+                return Operations[word].Data;
             }
-            return Empty;
+            return Constants.Empty;
         }
 
         public void Store(byte word, byte[] data)
         {
             if (word == 0)
             {
-                return; // throw it away
-            }
-
-            if (word == 1)
-            {
-                throw new BoundaryException(); 
+                return;
             }
 
             if (data == null || data.Length == 0)
             {
-                Registers.Remove(word);
+                Operations.Remove(word);
                 return;
-            }
-
-            if (data.Length > MAX_REGISTER_SIZE)
-            {
-                throw new BoundaryException();
             }
 
             var exe = new Executable(this, null, data);

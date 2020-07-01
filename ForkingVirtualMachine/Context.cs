@@ -1,34 +1,28 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using System;
+    using System.Collections.Generic;
 
     public class Context
     {
-        public readonly VirtualMachine Machine;
+        private readonly Stack<byte[]> Stack = new Stack<byte[]>(256);
 
-        public bool IsComplete => i == data.Length;
+        public int Ticks { get; set; }
 
-        private readonly byte[] data;
-        private int i;
+        public int Depth { get; set; } // really tempted to just make another stack
 
-        public Context(VirtualMachine machine, byte[] data)
+        public void Push(byte[] data)
         {
-            Machine = machine;
-            this.data = data;
+            if (data.Length > Constants.MAX_REGISTER_SIZE)
+            {
+                throw new BoundaryException();
+            }
+
+            Stack.Push(data);
         }
 
-        public byte Next()
+        public byte[] Pop()
         {
-            var res = data[i];
-            i++;
-            return res;
-        }
-
-        public ReadOnlySpan<byte> Next(int len)
-        {
-            var res = new ReadOnlySpan<byte>(data, i, len);
-            i += len;
-            return res;
+            return Stack.Pop();
         }
     }
 }

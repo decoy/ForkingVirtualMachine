@@ -16,7 +16,9 @@ namespace ForkingVirtualMachine.Test
             var vm = new VirtualMachine();
             vm.Set(Reg.No, new Executable(SafeWord.Machine, null, null));
             vm.Set(Reg.Boom, new Executable(Boom.Machine, null, null));
-            vm.Set(Reg.Define, new Executable(Define.Machine, null, null));
+            vm.Set(Reg.Push, new Executable(Push.Machine, null, null));
+            vm.Set(Reg.Push32, new Executable(Push.Machine, null, null));
+            vm.Set(Reg.Define, new Executable(new Define(vm), null, null));
 
             vm.Set(Reg.Add, new Executable(Add.Machine, null, null));
             vm.Set(Reg.Print, new Executable(col, null, null));
@@ -35,27 +37,34 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.Define, Reg.x
+                    Reg.NoOp, 
+                    Reg.Push
                 )
                 .AddData(
-                    Reg.Define, Reg.a, 1, 5,
-                    Reg.Define, Reg.b, 1, 2,
-                    Reg.Add, Reg.a, Reg.b, Reg.c
+                    Reg.Push, 1, 100,
+                    Reg.Add
                 )
                 .Add(
-                    Reg.Print, Reg.c,
+                    Reg.Push, 1, Reg.x,
+                    Reg.Define,
+
+                    Reg.Push, 1, 99,
+                    Reg.Print,
+
+                    Reg.Push, 1, 7,
                     Reg.x,
-                    Reg.Print, Reg.c
+                    Reg.Print
                 )
                 .ToArray();
 
-            VirtualMachine.Run(vm, new Context(vm, fun));
+            VirtualMachine.Run(vm, new Execution(ctx, fun));
 
-            Assert.AreEqual(0, col.Collected.Dequeue());
-            Assert.AreEqual(7, col.Collected.Dequeue());
+            Assert.AreEqual(99, col.Collected.Dequeue());
+            Assert.AreEqual(107, col.Collected.Dequeue());
         }
 
         [TestMethod]
@@ -63,6 +72,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
@@ -73,7 +83,7 @@ namespace ForkingVirtualMachine.Test
                 )
                 .ToArray();
 
-            VirtualMachine.Run(vm, new Context(vm, fun));
+            VirtualMachine.Run(vm, new Execution(ctx, fun));
 
             Assert.AreEqual(7, col.Collected.Dequeue());
         }
@@ -83,6 +93,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
@@ -93,7 +104,7 @@ namespace ForkingVirtualMachine.Test
                 )
                 .ToArray();
 
-            VirtualMachine.Run(vm, new Context(vm, fun));
+            VirtualMachine.Run(vm, new Execution(ctx, fun));
 
             Assert.AreEqual(3, col.Collected.Dequeue());
         }
@@ -103,6 +114,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
@@ -116,7 +128,7 @@ namespace ForkingVirtualMachine.Test
 
             Assert.ThrowsException<SafeWordException>(() =>
             {
-                VirtualMachine.Run(vm, new Context(vm, fun));
+                VirtualMachine.Run(vm, new Execution(ctx, fun));
             });
 
             Assert.AreEqual(0, col.Collected.Count);
@@ -127,6 +139,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
@@ -140,7 +153,7 @@ namespace ForkingVirtualMachine.Test
 
             Assert.ThrowsException<SelfDestructException>(() =>
             {
-                VirtualMachine.Run(vm, new Context(vm, fun));
+                VirtualMachine.Run(vm, new Execution(ctx, fun));
             });
 
             Assert.AreEqual(0, col.Collected.Count);
@@ -151,6 +164,7 @@ namespace ForkingVirtualMachine.Test
         {
             var col = new Collector();
             var vm = CreateTestVm(col);
+            var ctx = new Context();
 
             var fun = new List<byte>()
                 .Add(
@@ -163,7 +177,7 @@ namespace ForkingVirtualMachine.Test
 
             Assert.ThrowsException<BoundaryException>(() =>
             {
-                VirtualMachine.Run(vm, new Context(vm, fun));
+                VirtualMachine.Run(vm, new Execution(ctx, fun));
             });
 
             Assert.AreEqual(0, col.Collected.Count);

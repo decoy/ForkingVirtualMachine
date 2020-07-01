@@ -8,10 +8,9 @@ namespace ForkingVirtualMachine.Test
     {
         public Queue<BigInteger> Collected { get; } = new Queue<BigInteger>();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            var word = context.Next();
-            Collected.Enqueue(context.Machine.LoadInt(word));
+            Collected.Enqueue(execution.Context.PopInt());
         }
     }
 }

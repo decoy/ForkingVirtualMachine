@@ -4,10 +4,16 @@
     {
         public const byte No = 0;
         public const byte Boom = 1;
-        public const byte Define = 2;
+        public const byte Push = 2;
+
+        public const byte Define = 3;
+
+        public const byte Push32 = 31;
 
         public const byte Add = 20;
         public const byte Print = 30;
+
+        public const byte NoOp = 40;
 
         public static class Math
         {

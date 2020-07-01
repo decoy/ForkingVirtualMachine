@@ -4,11 +4,11 @@
     {
         public static readonly IVirtualMachine Machine = new Multiply();
 
-        public void Execute(Context context)
+        public void Execute(Execution execution)
         {
-            var a = context.Machine.LoadInt(context.Next());
-            var b = context.Machine.LoadInt(context.Next());
-            context.Machine.Store(context.Next(), a * b);
+            var a = execution.Context.PopInt();
+            var b = execution.Context.PopInt();
+            execution.Context.Push(a * b);
         }
     }
 }

@@ -2,22 +2,18 @@
 {
     public class Define : IVirtualMachine
     {
-        public static readonly IVirtualMachine Machine = new Define();
+        private VirtualMachine local;
 
-        public void Execute(Context context)
+        public Define(VirtualMachine local)
         {
-            var word = context.Next();
+            this.local = local;
+        }
 
-            var len = context.Next();
-
-            if (len == 0)
-            {
-                context.Machine.Store(word, null);
-                return;
-            }
-
-            var data = context.Next(len);
-            context.Machine.Store(word, data.ToArray());
+        public void Execute(Execution execution)
+        {
+            var word = execution.Context.Pop();
+            var data = execution.Context.Pop();
+            local.Store(word[0], data);
         }
     }
 }
