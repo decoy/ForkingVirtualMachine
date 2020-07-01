@@ -41,7 +41,7 @@ namespace ForkingVirtualMachine.Test
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.NoOp, 
+                    Reg.NoOp,
                     Reg.Push
                 )
                 .AddData(
@@ -76,10 +76,10 @@ namespace ForkingVirtualMachine.Test
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.Define, Reg.a, 1, 5,
-                    Reg.Define, Reg.b, 1, 2,
-                    Reg.Add, Reg.a, Reg.b, Reg.c,
-                    Reg.Print, Reg.c
+                    Reg.Push, 1, 2,
+                    Reg.Push, 1, 5,
+                    Reg.Add,
+                    Reg.Print
                 )
                 .ToArray();
 
@@ -97,16 +97,20 @@ namespace ForkingVirtualMachine.Test
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.Define, Reg.a, 1, 5,
-                    Reg.Define, Reg.b, 1, 2,
-                    Reg.Math.Namespace, Reg.Math.Subtract, Reg.a, Reg.b, Reg.c,
-                    Reg.Print, Reg.c
+                Reg.Push, 1, 2,
+                    Reg.Push, 1, 5,
+                    Reg.Push, 1, 7,
+
+                    Reg.Math.Namespace,
+                    Reg.Math.Subtract,
+
+                    Reg.Print
                 )
                 .ToArray();
 
             VirtualMachine.Run(vm, new Execution(ctx, fun));
 
-            Assert.AreEqual(3, col.Collected.Dequeue());
+            Assert.AreEqual(2, col.Collected.Dequeue());
         }
 
         [TestMethod]
@@ -118,45 +122,16 @@ namespace ForkingVirtualMachine.Test
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.Define, Reg.a, 1, 5,
-                    Reg.Define, Reg.b, 1, 2,
                     Reg.No,
-                    Reg.Add, Reg.a, Reg.b, Reg.c,
-                    Reg.Print, Reg.c
+                    Reg.Boom
                 )
                 .ToArray();
 
-            Assert.ThrowsException<SafeWordException>(() =>
-            {
-                VirtualMachine.Run(vm, new Execution(ctx, fun));
-            });
+            var exe = new Execution(ctx, fun);
+            VirtualMachine.Run(vm, exe);
 
-            Assert.AreEqual(0, col.Collected.Count);
-        }
-
-        [TestMethod]
-        public void RunsBoom()
-        {
-            var col = new Collector();
-            var vm = CreateTestVm(col);
-            var ctx = new Context();
-
-            var fun = new List<byte>()
-                .Add(
-                    Reg.Define, Reg.a, 1, 5,
-                    Reg.Define, Reg.b, 1, 2,
-                    Reg.Boom,
-                    Reg.Add, Reg.a, Reg.b, Reg.c,
-                    Reg.Print, Reg.c
-                )
-                .ToArray();
-
-            Assert.ThrowsException<SelfDestructException>(() =>
-            {
-                VirtualMachine.Run(vm, new Execution(ctx, fun));
-            });
-
-            Assert.AreEqual(0, col.Collected.Count);
+            Assert.IsTrue(exe.IsComplete);
+            Assert.IsTrue(exe.IsStopped);
         }
 
         [TestMethod]
@@ -168,10 +143,15 @@ namespace ForkingVirtualMachine.Test
 
             var fun = new List<byte>()
                 .Add(
-                    Reg.Define, Reg.a, 1, Reg.b,
-                    Reg.Define, Reg.b, 1, Reg.a,
-                    Reg.a, // goto 1
-                    Reg.Print, Reg.a
+                    Reg.Push, 1, Reg.y,
+                    Reg.Push, 1, Reg.x,
+                    Reg.Define,
+
+                    Reg.Push, 1, Reg.x,
+                    Reg.Push, 1, Reg.y,
+                    Reg.Define,
+
+                    Reg.x
                 )
                 .ToArray();
 
@@ -179,8 +159,6 @@ namespace ForkingVirtualMachine.Test
             {
                 VirtualMachine.Run(vm, new Execution(ctx, fun));
             });
-
-            Assert.AreEqual(0, col.Collected.Count);
         }
     }
 }

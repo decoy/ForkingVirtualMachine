@@ -1,7 +1,5 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using System;
-
     public class Executable
     {
         public readonly byte[] Id;

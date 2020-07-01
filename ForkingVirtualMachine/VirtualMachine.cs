@@ -1,6 +1,5 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using System;
     using System.Collections.Generic;
 
     public class VirtualMachine : IVirtualMachine
@@ -27,7 +26,7 @@
             var op = execution.Next();
             if (!Operations.ContainsKey(op))
             {
-                return; // these are noops?
+                return; // NoOp
             }
 
             var next = Operations[op];
@@ -54,15 +53,6 @@
             {
                 Operations.Add(word, exe);
             }
-        }
-
-        public byte[] Load(byte word)
-        {
-            if (Operations.ContainsKey(word))
-            {
-                return Operations[word].Data;
-            }
-            return Constants.Empty;
         }
 
         public void Store(byte word, byte[] data)
