@@ -22,6 +22,10 @@
             }
 
             var exe = manager.Load(id);
+            if (exe.Machine == null)
+            {
+                exe = new Executable(machine, exe.Data, exe.Data);
+            }
             machine.Set(word, exe);
         }
     }

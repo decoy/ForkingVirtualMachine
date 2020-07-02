@@ -4,8 +4,6 @@
     {
         public readonly byte[] Id;
 
-        public readonly byte[] Scope;
-
         public readonly byte[] Data;
 
         public readonly IVirtualMachine Machine;

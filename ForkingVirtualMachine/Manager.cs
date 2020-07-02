@@ -44,12 +44,22 @@
         public Executable Load(byte[] id)
         {
             var key = Convert.ToBase64String(id);
+            var machine = Machines[key];
             return Machines[key];
         }
 
         public void Save(VirtualMachine machine)
         {
+            // how do we do the scopes of machines that are part of it?
+            // it feels impossibleish. chicken/egg kinda thing.
 
+            foreach (var op in machine.Operations.Where(o => o.Value.Id.Length == 0))
+            {
+                var prog = ProgramBuilder.Create()
+                    .Push(op.Value.Data)
+                    .Push(op.Key)
+                    .Add(Constants.Define);
+            }
 
 
             //var me = machine.Operations.Select(op =>
@@ -64,9 +74,6 @@
             foreach (var op in machine.Operations)
             {
                 var id = Save(op.Value);
-
-                // if scope == 0 it belongs to this one.
-                var scope = op.Value.Scope;
 
 
             }

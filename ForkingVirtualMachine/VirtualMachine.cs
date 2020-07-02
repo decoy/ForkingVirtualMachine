@@ -6,23 +6,23 @@
     {
         public readonly Dictionary<byte, Executable> Operations = new Dictionary<byte, Executable>();
 
-        public static void Run(IVirtualMachine machine, Execution exe)
+        public static void Run(IVirtualMachine machine, Execution execution)
         {
-            while (!exe.IsComplete)
+            while (!execution.IsComplete)
             {
-                machine.Execute(exe);
+                if (execution.Context.Ticks >= Constants.MAX_TICKS || execution.Context.Depth >= Constants.MAX_DEPTH)
+                {
+                    throw new BoundaryException();
+                }
+
+                execution.Context.Ticks++;
+
+                machine.Execute(execution);
             }
         }
 
         public void Execute(Execution execution)
         {
-            if (execution.Context.Ticks >= Constants.MAX_TICKS || execution.Context.Depth >= Constants.MAX_DEPTH)
-            {
-                throw new BoundaryException();
-            }
-
-            execution.Context.Ticks++;
-
             var op = execution.Next();
             if (!Operations.ContainsKey(op))
             {

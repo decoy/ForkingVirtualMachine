@@ -10,6 +10,8 @@
 
         public const int MAX_REGISTER_SIZE = 1024 * 1024;
 
+        public const int MAX_STACK_DEPTH = 256;
+
         public const int MAX_DEPTH = 256;
 
         public const int MAX_TICKS = 1024;
