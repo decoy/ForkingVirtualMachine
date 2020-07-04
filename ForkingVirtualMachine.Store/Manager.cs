@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine
+﻿namespace ForkingVirtualMachine.Store
 {
     using System;
     using System.Collections.Generic;

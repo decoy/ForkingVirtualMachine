@@ -6,12 +6,17 @@
     {
         public static bool PopBool(this Context context)
         {
-            return new BigInteger(context.Pop()) != 0;
+            return PopInt(context) != 0;
         }
 
         public static BigInteger PopInt(this Context context)
         {
-            return new BigInteger(context.Pop());
+            var data = context.Pop();
+            if (data.Length > Constants.MAX_INT_BYTES)
+            {
+                throw new BoundaryException();
+            }
+            return new BigInteger(data);
         }
 
         public static void Push(this Context context, BigInteger integer)

@@ -16,6 +16,8 @@
 
         public const int MAX_TICKS = 1024;
 
+        public const byte MAX_INT_BYTES = 16;
+
         public const byte SafeWord = 0;
         public const byte SelfDestruct = 1;
         public const byte Push8 = 2;

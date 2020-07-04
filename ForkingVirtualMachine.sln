@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForkingVirtualMachine", "Fo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForkingVirtualMachine.Test", "ForkingVirtualMachine.Test\ForkingVirtualMachine.Test.csproj", "{BE7E9290-193D-4C0C-BF36-0ED59CDFC388}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForkingVirtualMachine.Store", "ForkingVirtualMachine.Store\ForkingVirtualMachine.Store.csproj", "{335B5DED-176C-4732-B201-D20EA930E4D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BE7E9290-193D-4C0C-BF36-0ED59CDFC388}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE7E9290-193D-4C0C-BF36-0ED59CDFC388}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE7E9290-193D-4C0C-BF36-0ED59CDFC388}.Release|Any CPU.Build.0 = Release|Any CPU
+		{335B5DED-176C-4732-B201-D20EA930E4D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335B5DED-176C-4732-B201-D20EA930E4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335B5DED-176C-4732-B201-D20EA930E4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335B5DED-176C-4732-B201-D20EA930E4D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

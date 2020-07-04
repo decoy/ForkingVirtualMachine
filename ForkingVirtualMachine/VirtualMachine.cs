@@ -30,11 +30,12 @@
             }
 
             var next = Operations[op];
-            if (next.Machine == this)
+
+            if (next.Data != null && next.Data.Length > 0)
             {
                 execution.Context.Depth++;
                 var exe = new Execution(execution.Context, next.Data);
-                Run(this, exe);
+                Run(next.Machine, exe);
                 execution.Context.Depth--;
             }
             else

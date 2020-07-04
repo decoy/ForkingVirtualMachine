@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine.State
+﻿namespace ForkingVirtualMachine.Store
 {
     public class Require : IVirtualMachine
     {
