@@ -1,4 +1,4 @@
-﻿using ForkingVirtualMachine.Arithmetic;
+﻿using ForkingVirtualMachine.Machines;
 using System.Collections.Generic;
 using System.Numerics;
 

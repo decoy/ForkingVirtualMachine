@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine.Flow
+﻿namespace ForkingVirtualMachine.Machines
 {
     public class If : IVirtualMachine
     {

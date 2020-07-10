@@ -1,15 +1,15 @@
-﻿namespace ForkingVirtualMachine.Arithmetic
+﻿namespace ForkingVirtualMachine.Machines
 {
-    public class GreaterThan : IVirtualMachine
+    public class GreaterThanEqualTo : IVirtualMachine
     {
-        public static readonly IVirtualMachine Machine = new GreaterThan();
+        public static readonly IVirtualMachine Machine = new GreaterThanEqualTo();
 
         public void Execute(Context context)
         {
             var a = context.PopInt();
             var b = context.PopInt();
 
-            context.Push(a > b
+            context.Push(a >= b
                 ? Constants.True
                 : Constants.False);
         }

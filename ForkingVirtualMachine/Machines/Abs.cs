@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace ForkingVirtualMachine.Arithmetic
+namespace ForkingVirtualMachine.Machines
 {
     public class Abs : IVirtualMachine
     {

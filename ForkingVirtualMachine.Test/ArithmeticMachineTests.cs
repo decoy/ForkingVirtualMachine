@@ -1,4 +1,4 @@
-﻿using ForkingVirtualMachine.Arithmetic;
+﻿using ForkingVirtualMachine.Machines;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ForkingVirtualMachine.Flow
+namespace ForkingVirtualMachine.Machines
 {
     public class Executable : IVirtualMachine
     {

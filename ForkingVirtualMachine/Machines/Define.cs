@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine.Flow
+﻿namespace ForkingVirtualMachine.Machines
 {
     using System.Collections.Generic;
     using System.Numerics;

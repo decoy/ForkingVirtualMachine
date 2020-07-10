@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine.Arithmetic
+﻿namespace ForkingVirtualMachine.Machines
 {
     using System.Numerics;
 
