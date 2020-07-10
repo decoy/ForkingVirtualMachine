@@ -8,8 +8,8 @@ namespace ForkingVirtualMachine.Arithmetic
 
         public void Execute(Context context)
         {
-            var a = context.Machine.LoadInt(context.Next());
-            context.Machine.Store(context.Next(), BigInteger.Abs(a));
+            var a = context.PopInt();
+            context.Push(BigInteger.Abs(a));
         }
     }
 }

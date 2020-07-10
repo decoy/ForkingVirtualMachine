@@ -1,16 +1,27 @@
 ﻿namespace ForkingVirtualMachine
 {
+    using System;
     using System.Collections.Generic;
 
     public class Context
     {
-        private readonly Stack<byte[]> Stack = new Stack<byte[]>();
+        public readonly Stack<ReadOnlyMemory<byte>> Stack = new Stack<ReadOnlyMemory<byte>>();
+
+        public readonly Stack<IVirtualMachine> Executions = new Stack<IVirtualMachine>();
 
         public int Ticks { get; set; }
 
-        public int Depth { get; set; }
+        public void Push(IVirtualMachine exe)
+        {
+            if (Executions.Count == Constants.MAX_EXE_DEPTH)
+            {
+                throw new BoundaryException();
+            }
 
-        public void Push(byte[] data)
+            Executions.Push(exe);
+        }
+
+        public void Push(ReadOnlyMemory<byte> data)
         {
             if (data.Length > Constants.MAX_REGISTER_SIZE)
             {
@@ -25,7 +36,7 @@
             Stack.Push(data);
         }
 
-        public byte[] Pop()
+        public ReadOnlyMemory<byte> Pop()
         {
             return Stack.Pop();
         }

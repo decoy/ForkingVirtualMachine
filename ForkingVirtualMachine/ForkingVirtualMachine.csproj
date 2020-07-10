@@ -4,16 +4,4 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Arithmetic\Abs.cs" />
-    <Compile Remove="Arithmetic\Divide.cs" />
-    <Compile Remove="Arithmetic\GreaterThan.cs" />
-    <Compile Remove="Arithmetic\GreaterThanEqualTo.cs" />
-    <Compile Remove="Arithmetic\LessThan.cs" />
-    <Compile Remove="Arithmetic\LessThanEqualTo.cs" />
-    <Compile Remove="Arithmetic\Max.cs" />
-    <Compile Remove="Arithmetic\Min.cs" />
-    <Compile Remove="Arithmetic\Modulo.cs" />
-  </ItemGroup>
-
 </Project>

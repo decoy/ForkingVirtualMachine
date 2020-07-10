@@ -4,11 +4,11 @@
     {
         public static readonly IVirtualMachine Machine = new Or();
 
-        public void Execute(Execution execution)
+        public void Execute(Context context)
         {
-            var a = execution.Context.PopBool();
-            var b = execution.Context.PopBool();
-            execution.Context.Push((a || b)
+            var a = context.PopBool();
+            var b = context.PopBool();
+            context.Push((a || b)
                 ? Constants.True
                 : Constants.False);
         }

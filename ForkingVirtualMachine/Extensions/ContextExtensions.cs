@@ -16,7 +16,7 @@
             {
                 throw new BoundaryException();
             }
-            return new BigInteger(data);
+            return new BigInteger(data.Span);
         }
 
         public static void Push(this Context context, BigInteger integer)

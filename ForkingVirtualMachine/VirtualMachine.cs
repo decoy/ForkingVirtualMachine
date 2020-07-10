@@ -1,58 +1,60 @@
 ﻿namespace ForkingVirtualMachine
 {
-    using System.Collections.Generic;
+    using System;
+    using System.Buffers.Binary;
 
     public class VirtualMachine : IVirtualMachine
     {
-        public readonly Dictionary<byte, Executable> Operations = new Dictionary<byte, Executable>();
+        private readonly IVirtualMachine loader;
 
-        public static void Run(IVirtualMachine machine, Execution execution)
+        private readonly ReadOnlyMemory<byte> data;
+        private int len;
+        private int i;
+
+        public VirtualMachine(IVirtualMachine loader, ReadOnlyMemory<byte> data)
         {
-            while (!execution.IsComplete)
+            this.loader = loader;
+            this.data = data;
+        }
+
+        public void Execute(Context context)
+        {
+            if (data.Length == i)
             {
-                if (execution.Context.Ticks >= Constants.MAX_TICKS || execution.Context.Depth >= Constants.MAX_DEPTH)
+                return;
+            }
+
+            var span = data.Span;
+
+            while (data.Length != i)
+            {
+                len = span[i];
+                i++;
+
+                if (len == Constants.EXECUTE)
                 {
-                    throw new BoundaryException();
+                    context.Ticks++;
+                    if (context.Ticks >= Constants.MAX_TICKS)
+                    {
+                        throw new BoundaryException();
+                    }
+
+                    context.Push(this); // save our spot
+
+                    loader.Execute(context);
+                    return;
                 }
 
-                execution.Context.Ticks++;
+                if (len == byte.MaxValue)
+                {
+                    // TODO: less arbitrary here?
+                    // (maybe 255 = read next two bytes as len?, 255,255 = 4?)
+                    len = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(i));
+                    i += 4;
+                }
 
-                machine.Execute(execution);
-            }
-        }
-
-        public void Execute(Execution execution)
-        {
-            var op = execution.Next();
-            if (!Operations.ContainsKey(op))
-            {
-                return; // NoOp
-            }
-
-            var next = Operations[op];
-
-            if (next.Data != null && next.Data.Length > 0)
-            {
-                execution.Context.Depth++;
-                var exe = new Execution(execution.Context, next.Data);
-                Run(next.Machine, exe);
-                execution.Context.Depth--;
-            }
-            else
-            {
-                next.Machine.Execute(execution);
-            }
-        }
-
-        public void Set(byte word, Executable exe)
-        {
-            if (Operations.ContainsKey(word))
-            {
-                Operations[word] = exe;
-            }
-            else
-            {
-                Operations.Add(word, exe);
+                context.Push(data.Slice(i, len));
+                i += len;
             }
         }
     }

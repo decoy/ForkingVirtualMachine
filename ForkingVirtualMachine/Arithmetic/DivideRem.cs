@@ -6,15 +6,15 @@
     {
         public static readonly IVirtualMachine Machine = new DivideRem();
 
-        public void Execute(Execution execution)
+        public void Execute(Context context)
         {
-            var a = execution.Context.PopInt();
-            var b = execution.Context.PopInt();
+            var a = context.PopInt();
+            var b = context.PopInt();
 
             var res = BigInteger.DivRem(a, b, out var r);
 
-            execution.Context.Push(r);
-            execution.Context.Push(res);
+            context.Push(r);
+            context.Push(res);
         }
     }
 }

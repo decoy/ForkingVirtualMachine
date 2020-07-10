@@ -4,12 +4,14 @@
     {
         public static readonly IVirtualMachine Machine = new If();
 
-        public void Execute(Execution execution)
+        public void Execute(Context context)
         {
             // TODO: branch0 seems to be more common?
-            if (!execution.Context.PopBool())
+            // ... wait.
+            // how do you use if?
+            if (!context.PopBool())
             {
-                execution.Next();
+                //context.Next();
             }
         }
     }

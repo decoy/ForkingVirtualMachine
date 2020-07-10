@@ -12,17 +12,14 @@
 
         public const int MAX_STACK_DEPTH = 256;
 
-        public const int MAX_DEPTH = 256;
+        public const int MAX_EXE_DEPTH = 256;
 
         public const int MAX_TICKS = 1024;
 
         public const byte MAX_INT_BYTES = 16;
 
-        public const byte SafeWord = 0;
-        public const byte SelfDestruct = 1;
-        public const byte Push8 = 2;
-        public const byte Define = 3;
-        public const byte Require = 4;
-        public const byte Push32 = Push8 + 32;
+        public const byte PUSH = 1;
+
+        public const byte EXECUTE = 0;
     }
 }

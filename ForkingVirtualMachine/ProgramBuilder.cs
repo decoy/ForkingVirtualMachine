@@ -2,26 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Numerics;
 
     public class ProgramBuilder
     {
         private readonly List<byte> program = new List<byte>();
 
-        private readonly byte define;
-        private readonly byte push8;
-        private readonly byte push32;
-
-        public ProgramBuilder(byte define, byte push8, byte push32)
-        {
-            this.define = define;
-            this.push8 = push8;
-            this.push32 = push32;
-        }
-
         public static ProgramBuilder Create()
         {
-            return new ProgramBuilder(Constants.Define, Constants.Push8, Constants.Push32);
+            return new ProgramBuilder();
         }
 
         public byte[] ToBytes()
@@ -29,21 +19,34 @@
             return program.ToArray();
         }
 
-        public ProgramBuilder Define(byte word, Action<ProgramBuilder> build)
+        public ProgramBuilder Push(params BigInteger[] numbers)
         {
-            var next = new ProgramBuilder(define, push8, push32);
-            build(next);
-
-            Define(word, next.ToBytes());
-
+            Push(numbers.Select(n => n.ToByteArray()));
             return this;
         }
 
-        public ProgramBuilder Define(byte word, params byte[] data)
+        public ProgramBuilder Push(IEnumerable<byte[]> buffers)
         {
-            Push(data);
-            Push(word);
-            program.Add(define);
+            foreach (var data in buffers)
+            {
+                Push(data);
+            }
+            return this;
+        }
+
+        public ProgramBuilder Push(byte[] data)
+        {
+            if (data.Length >= 255)
+            {
+                program.Add(255);
+                program.AddRange(BitConverter.GetBytes(data.Length));
+            }
+            else
+            {
+                program.Add((byte)data.Length);
+            }
+
+            program.AddRange(data);
 
             return this;
         }
@@ -54,27 +57,25 @@
             return this;
         }
 
-        public ProgramBuilder Push(BigInteger number)
+        public ProgramBuilder Execute(params byte[] words)
         {
-            var x = number.ToByteArray();
-            Push(number.ToByteArray());
+            foreach (var word in words)
+            {
+                Push(word);
+                program.Add(Constants.EXECUTE);
+            }
+
             return this;
         }
 
-        public ProgramBuilder Push(params byte[] data)
+        public ProgramBuilder Define(byte word, Action<ProgramBuilder> build)
         {
-            if (data.Length > byte.MaxValue)
-            {
-                program.Add(push32);
-                program.AddRange(BitConverter.GetBytes(data.Length));
-            }
-            else
-            {
-                program.Add(push8);
-                program.Add((byte)data.Length);
-            }
+            var next = new ProgramBuilder();
+            build(next);
 
-            program.AddRange(data);
+            Push(next.ToBytes());
+            Push(word);
+            Execute(Constants.PUSH); // store
 
             return this;
         }

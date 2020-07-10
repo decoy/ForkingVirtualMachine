@@ -6,10 +6,12 @@
 
         public void Execute(Context context)
         {
-            var a = context.Machine.LoadInt(context.Next());
-            var b = context.Machine.LoadInt(context.Next());
+            var a = context.PopInt();
+            var b = context.PopInt();
 
-            context.Machine.Store(context.Next(), a >= b ? And.True : And.False);
+            context.Push(a >= b
+                ? Constants.True
+                : Constants.False);
         }
     }
 }

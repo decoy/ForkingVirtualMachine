@@ -4,10 +4,10 @@
     {
         public static readonly IVirtualMachine Machine = new Negate();
 
-        public void Execute(Execution execution)
+        public void Execute(Context context)
         {
-            var a = execution.Context.PopInt();
-            execution.Context.Push(-a);
+            var a = context.PopInt();
+            context.Push(-a);
         }
     }
 }

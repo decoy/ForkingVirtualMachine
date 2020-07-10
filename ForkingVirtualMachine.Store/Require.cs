@@ -1,32 +1,35 @@
-﻿namespace ForkingVirtualMachine.Store
-{
-    public class Require : IVirtualMachine
-    {
-        private Manager manager;
-        private VirtualMachine machine;
+﻿//using System;
 
-        public Require(VirtualMachine machine, Manager manager)
-        {
-            this.machine = machine;
-            this.manager = manager;
-        }
+//namespace ForkingVirtualMachine.Store
+//{
+//    public class Require : IVirtualMachine
+//    {
+//        private Manager manager;
+//        private VirtualMachine machine;
 
-        public void Execute(Execution execution)
-        {
-            var word = execution.Context.Pop()[0];
-            var id = execution.Context.Pop();
+//        public Require(VirtualMachine machine, Manager manager)
+//        {
+//            this.machine = machine;
+//            this.manager = manager;
+//        }
 
-            if (word == 0)
-            {
-                return;
-            }
+//        public void Execute(Context context)
+//        {
+//            var word = context.Pop().Span[0];
+//            var id = context.Pop();
 
-            var exe = manager.Load(id);
-            if (exe.Machine == null)
-            {
-                exe = new Executable(machine, exe.Data, exe.Data);
-            }
-            machine.Set(word, exe);
-        }
-    }
-}
+//            if (word == 0)
+//            {
+//                return;
+//            }
+
+//            var exe = manager.Load(id.ToArray());
+//            if (exe.Machine == null)
+//            {
+//                exe = new Executable(machine, exe.Data, exe.Data);
+//            }
+//            throw new NotImplementedException();
+//            //machine.Set(word, exe);
+//        }
+//    }
+//}

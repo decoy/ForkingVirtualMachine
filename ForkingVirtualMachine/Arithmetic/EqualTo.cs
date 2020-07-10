@@ -4,12 +4,12 @@
     {
         public static readonly IVirtualMachine Machine = new EqualTo();
 
-        public void Execute(Execution execution)
+        public void Execute(Context context)
         {
-            var a = execution.Context.PopInt();
-            var b = execution.Context.PopInt();
+            var a = context.PopInt();
+            var b = context.PopInt();
 
-            execution.Context.Push(a == b
+            context.Push(a == b
                 ? Constants.True
                 : Constants.False);
         }

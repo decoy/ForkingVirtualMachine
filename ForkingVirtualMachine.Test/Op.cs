@@ -2,12 +2,8 @@
 {
     public class Op
     {
-        public const byte No = Constants.SafeWord;
-        public const byte Boom = Constants.SelfDestruct;
-
-        public const byte Push = Constants.Push8;
-        public const byte Push32 = Constants.Push32;
-        public const byte Define = Constants.Define;
+        public const byte Exe = Constants.EXECUTE; // also pop?
+        public const byte Push = Constants.PUSH;
 
         public const byte Add = 20;
         public const byte Print = 30;
