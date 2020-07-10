@@ -226,7 +226,7 @@ namespace ForkingVirtualMachine.Test
                 Run(ctx);
             });
 
-            Assert.AreEqual(Constants.MAX_TICKS + 1, ctx.Ticks);
+            Assert.AreEqual(Constants.MAX_TICKS, ctx.Ticks);
         }
     }
 }

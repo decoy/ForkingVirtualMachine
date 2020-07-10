@@ -9,7 +9,16 @@
 
         public readonly Stack<IVirtualMachine> Executions = new Stack<IVirtualMachine>();
 
-        public int Ticks { get; set; }
+        public int Ticks { get; private set; }
+
+        public void Tick()
+        {
+            if (Ticks == Constants.MAX_TICKS)
+            {
+                throw new BoundaryException();
+            }
+            Ticks++;
+        }
 
         public void Push(IVirtualMachine exe)
         {

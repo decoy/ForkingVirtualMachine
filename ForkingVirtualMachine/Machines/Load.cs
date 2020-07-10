@@ -17,7 +17,7 @@
             var word = new BigInteger(context.Pop().Span);
             if (machines.ContainsKey(word))
             {
-                machines[word].Execute(context);
+                context.Push(machines[word]);
             }
         }
     }
