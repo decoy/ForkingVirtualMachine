@@ -1,5 +1,4 @@
-﻿using ForkingVirtualMachine.Machines;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 
 namespace ForkingVirtualMachine.Test

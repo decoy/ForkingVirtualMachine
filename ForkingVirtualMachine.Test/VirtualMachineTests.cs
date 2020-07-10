@@ -1,5 +1,6 @@
 using ForkingVirtualMachine.Machines;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -8,12 +9,13 @@ namespace ForkingVirtualMachine.Test
     [TestClass]
     public class VirtualMachineTests
     {
-        private static void Run(Context ctx)
+        private static Context Run(Context context)
         {
-            while (ctx.Executions.Count > 0)
+            while (context.Executions.Count > 0)
             {
-                ctx.Executions.Pop().Execute(ctx);
+                context.Executions.Pop().Execute(context);
             }
+            return context;
         }
 
         private static Context CreateContext(Collector col, byte[] data)
@@ -74,8 +76,6 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(99, col.Collected.Dequeue());
             Assert.AreEqual(1007, col.Collected.Dequeue());
         }
-
-
 
         //    [TestMethod]
         //    public void RunsNamespace()
@@ -165,52 +165,68 @@ namespace ForkingVirtualMachine.Test
         //        Assert.IsTrue(exe.IsStopped);
         //    }
 
-        //    [TestMethod]
-        //    public void LimitsDepth()
-        //    {
-        //        var col = new Collector();
-        //        var vm = CreateTestVm(col);
-        //        var ctx = new Context();
+        [TestMethod]
+        public void LimitsDataStack()
+        {
+            var p = ProgramBuilder.Create();
+            for (var i = 0; i < Constants.MAX_STACK_DEPTH + 1; i++)
+            {
+                p.Push(5);
+            }
 
-        //        var fun = ProgramBuilder.Create()
-        //            .Add(
-        //                Op.Push, 1, Op.y,
-        //                Op.Push, 1, Op.x,
-        //                Op.Define,
+            var fun = p.ToBytes();
 
-        //                Op.Push, 1, Op.x,
-        //                Op.Push, 1, Op.y,
-        //                Op.Define,
+            var col = new Collector();
+            var ctx = CreateContext(col, fun);
 
-        //                Op.x
-        //            )
-        //            .ToBytes();
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                Run(ctx);
+            });
 
-        //        Assert.ThrowsException<BoundaryException>(() =>
-        //        {
-        //            VirtualMachine.Run(vm, new Execution(ctx, fun));
-        //        });
+            Assert.AreEqual(Constants.MAX_STACK_DEPTH, ctx.Stack.Count);
+        }
 
-        //        Assert.AreEqual(Constants.MAX_DEPTH, ctx.Depth);
-        //    }
+        [TestMethod]
+        public void LimitsExeStack()
+        {
+            var fun = ProgramBuilder.Create()
+                .Define(Op.x, p => p.Execute(Op.y))
+                .Define(Op.y, p => p.Execute(Op.x))
+                .Execute(Op.x)
+                .ToBytes();
 
-        //    [TestMethod]
-        //    public void LimitsTicks()
-        //    {
-        //        var col = new Collector();
-        //        var vm = CreateTestVm(col);
-        //        var ctx = new Context();
+            var col = new Collector();
+            var ctx = CreateContext(col, fun);
 
-        //        var noop = new Span<byte>(new byte[Constants.MAX_TICKS + 1]);
-        //        noop.Fill(Op.NoOp);
-        //        var fun = noop.ToArray();
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                Run(ctx);
+            });
 
-        //        Assert.ThrowsException<BoundaryException>(() =>
-        //        {
-        //            VirtualMachine.Run(vm, new Execution(ctx, fun));
-        //        });
+            Assert.AreEqual(Constants.MAX_EXE_DEPTH, ctx.Executions.Count);
+        }
 
-        //        Assert.AreEqual(Constants.MAX_TICKS, ctx.Ticks);
-        //    }
+        [TestMethod]
+        public void LimitsTicks()
+        {
+            var p = ProgramBuilder.Create();
+            for (var i = 0; i < Constants.MAX_TICKS + 1; i++)
+            {
+                p.Execute(Op.NoOp);
+            }
+
+            var fun = p.ToBytes();
+
+            var col = new Collector();
+            var ctx = CreateContext(col, fun);
+
+            Assert.ThrowsException<BoundaryException>(() =>
+            {
+                Run(ctx);
+            });
+
+            Assert.AreEqual(Constants.MAX_TICKS + 1, ctx.Ticks);
+        }
     }
 }

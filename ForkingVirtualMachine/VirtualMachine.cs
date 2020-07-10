@@ -34,7 +34,7 @@
                 if (len == Constants.EXECUTE)
                 {
                     context.Ticks++;
-                    if (context.Ticks >= Constants.MAX_TICKS)
+                    if (context.Ticks > Constants.MAX_TICKS)
                     {
                         throw new BoundaryException();
                     }
