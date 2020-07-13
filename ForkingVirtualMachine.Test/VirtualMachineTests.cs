@@ -21,14 +21,14 @@ namespace ForkingVirtualMachine.Test
         private static Context CreateContext(Collector col, byte[] data)
         {
             var machines = new Dictionary<BigInteger, IVirtualMachine>();
-            var loader = new Load(machines);
+            var scope = new Define(machines);
 
-            machines.Add(Op.Push, new Define(loader, machines));
+            machines.Add(Op.Push, scope);
             machines.Add(Op.Add, Add.Machine);
             machines.Add(Op.Print, col);
 
             var ctx = new Context();
-            ctx.Push(new VirtualMachine(loader, data));
+            ctx.Push(new VirtualMachine(scope, data));
 
             return ctx;
         }

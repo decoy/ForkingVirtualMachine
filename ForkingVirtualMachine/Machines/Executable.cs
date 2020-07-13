@@ -4,11 +4,13 @@ namespace ForkingVirtualMachine.Machines
 {
     public class Executable : IVirtualMachine
     {
+        public readonly ReadOnlyMemory<byte> Id;
+
         public readonly ReadOnlyMemory<byte> Data;
 
-        private readonly IVirtualMachine scope;
+        private readonly IDescribe scope;
 
-        public Executable(IVirtualMachine scope, ReadOnlyMemory<byte> data)
+        public Executable(IDescribe scope, ReadOnlyMemory<byte> data)
         {
             Data = data;
             this.scope = scope;

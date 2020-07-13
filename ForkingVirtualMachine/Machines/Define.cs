@@ -1,25 +1,30 @@
 ﻿namespace ForkingVirtualMachine.Machines
 {
+    using System;
     using System.Collections.Generic;
     using System.Numerics;
 
-    public class Define : IVirtualMachine
+    public class Define : IVirtualMachine, IDescribe
     {
         private Dictionary<BigInteger, IVirtualMachine> machines;
 
-        private readonly IVirtualMachine scope;
-
-        public Define(IVirtualMachine scope, Dictionary<BigInteger, IVirtualMachine> machines)
+        public Define(Dictionary<BigInteger, IVirtualMachine> machines)
         {
             this.machines = machines;
-            this.scope = scope;
         }
 
         public void Execute(Context context)
         {
             var word = new BigInteger(context.Pop().Span);
             var data = context.Pop();
-            var exe = new Executable(scope, data);
+
+            if (data.Length == 0)
+            {
+                machines.Remove(word);
+                return;
+            }
+
+            var exe = new Executable(this, data);
             if (!machines.ContainsKey(word))
             {
                 machines.Add(word, exe);
@@ -28,6 +33,17 @@
             {
                 machines[word] = exe;
             }
+        }
+
+        public IVirtualMachine Describe(ReadOnlyMemory<byte> word)
+        {
+            var key = new BigInteger(word.Span);
+            if (machines.ContainsKey(key))
+            {
+                return machines[key];
+            }
+
+            return NoOp.Machine;
         }
     }
 }

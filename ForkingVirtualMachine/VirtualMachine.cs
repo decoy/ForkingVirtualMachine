@@ -5,15 +5,15 @@
 
     public class VirtualMachine : IVirtualMachine
     {
-        private readonly IVirtualMachine loader;
+        private readonly IDescribe scope;
 
         private readonly ReadOnlyMemory<byte> data;
         private int len;
         private int i;
 
-        public VirtualMachine(IVirtualMachine loader, ReadOnlyMemory<byte> data)
+        public VirtualMachine(IDescribe loader, ReadOnlyMemory<byte> data)
         {
-            this.loader = loader;
+            this.scope = loader;
             this.data = data;
         }
 
@@ -35,7 +35,7 @@
                 {
                     context.Tick();
                     context.Push(this); // save our spot
-                    context.Push(loader);
+                    context.Push(scope.Describe(context.Pop()));
                     return;
                 }
 
