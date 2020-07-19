@@ -44,12 +44,30 @@ namespace ForkingVirtualMachine.Test
             {
                 var repo = new Repository(db);
 
-                var n1 = new Node()
+                var d1 = new Content()
                 {
-
+                    Id = Guid.NewGuid().ToByteArray(),
+                    Data = Guid.NewGuid().ToByteArray(),
                 };
 
+                await repo.InsertContent(d1);
+
+                var n1 = new Node()
+                {
+                    Id = Guid.NewGuid().ToByteArray(),
+                    ParentId = null,
+                    DataId = d1.Id,
+                    Word = Guid.NewGuid().ToByteArray(),
+                    Weight = 5,
+                    ModifiedOn = DateTime.UtcNow,
+                    Version = 0,
+                };
+
+                var ds1 = await repo.GetContent(d1.Id);
+
                 await repo.InsertNode(n1);
+
+                var ns1 = await repo.GetNode(n1.Id);
             }
         }
     }

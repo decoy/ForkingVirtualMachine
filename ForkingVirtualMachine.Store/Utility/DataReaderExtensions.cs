@@ -101,14 +101,18 @@
             return list;
         }
 
-        //public static TValue? GetNullableValue<TValue>(this IDataReader record, string name) where TValue : struct
-        //{
-        //    return record.GetValue<TValue, TValue?>(name);
-        //}
-
-        public static TResult GetValue<TResult>(this IDataReader reader, string name)
+        public static TResult GetNullableValue<TResult>(this IDataReader reader, string name)
         {
             var result = reader[name];
+
+            return !result.Equals(DBNull.Value)
+                ? (TResult)result
+                : default;
+        }
+
+        public static TResult GetNullableValue<TResult>(this IDataReader reader, int i)
+        {
+            var result = reader.GetValue(i);
 
             return !result.Equals(DBNull.Value)
                 ? (TResult)result

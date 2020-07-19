@@ -25,14 +25,17 @@
 
         #region Migrations
 
-        public async Task<IEnumerable<Migration>> GetMigrations()
+        public Task<IEnumerable<Migration>> GetMigrations()
         {
-            const string sql = @"SELECT name, ran_on FROM migrations ORDER BY name;";
+            const string sql = @"
+                SELECT name, ran_on 
+                FROM migrations 
+                ORDER BY name;";
 
-            return await db.Query(sql, ToMigration);
+            return db.Query(sql, ToMigration);
         }
 
-        public async Task<int> InsertMigration(string name, DateTime ranOn)
+        public Task<int> InsertMigration(string name, DateTime ranOn)
         {
             const string sql = @"
                 INSERT INTO migrations 
@@ -40,14 +43,14 @@
                 VALUES
                 (@name, @ran_on);";
 
-            return await db.Execute(sql, new
+            return db.Execute(sql, new
             {
                 name,
                 ran_on = ranOn,
             });
         }
 
-        public static Migration ToMigration(IDataReader reader)
+        public static Migration ToMigration(DbDataReader reader)
         {
             return new Migration()
             {
@@ -58,9 +61,48 @@
 
         #endregion
 
+        #region Contents
+
+        public Task<int> InsertContent(Content content)
+        {
+            const string sql = @"
+                INSERT INTO contents 
+                (id, data)
+                VALUES
+                (@id, @data);";
+
+            return db.Execute(sql, new
+            {
+                id = content.Id,
+                data = content.Data,
+            });
+        }
+
+        public Task<Content> GetContent(byte[] id)
+        {
+            const string sql = @"
+                SELECT id, data
+                FROM contents 
+                WHERE id = @id
+                LIMIT 1;";
+
+            return db.QuerySingle(sql, new { id }, ToContent);
+        }
+
+        public static Content ToContent(DbDataReader reader)
+        {
+            return new Content()
+            {
+                Id = (byte[])reader.GetValue(0),
+                Data = (byte[])reader.GetValue(1)
+            };
+        }
+
+        #endregion
+
         #region Nodes
 
-        public async Task<Node> GetNode(byte[] id)
+        public Task<Node> GetNode(byte[] id)
         {
             const string sql = @"
                 SELECT id, parent_id, word, data_id, weight, modified_on, version
@@ -68,10 +110,10 @@
                 WHERE id = @id
                 LIMIT 1;";
 
-            return await db.QuerySingle(sql, new { id }, ToNode);
+            return db.QuerySingle(sql, new { id }, ToNode);
         }
 
-        public async Task<IEnumerable<Node>> GetNodesByLabel(byte[] word, int limit = LIMIT)
+        public Task<IEnumerable<Node>> GetNodesByLabel(byte[] word, int limit = LIMIT)
         {
             const string sql = @"
                 SELECT id, parent_id, word, data_id, weight, modified_on, version
@@ -79,10 +121,10 @@
                 WHERE word = @word
                 LIMIT @limit;";
 
-            return await db.Query(sql, new { word, limit }, ToNode);
+            return db.Query(sql, new { word, limit }, ToNode);
         }
 
-        public async Task<IEnumerable<Node>> GetNodesByParent(byte[] parentId, int limit = LIMIT)
+        public Task<IEnumerable<Node>> GetNodesByParent(byte[] parentId, int limit = LIMIT)
         {
             const string sql = @"
                 SELECT id, parent_id, word, data_id, weight, modified_on, version
@@ -90,10 +132,10 @@
                 WHERE parent_id = @parentId
                 LIMIT @limit;";
 
-            return await db.Query(sql, new { parentId, limit }, ToNode);
+            return db.Query(sql, new { parentId, limit }, ToNode);
         }
 
-        public async Task<Node> GetChildNode(byte[] parentId, byte[] word)
+        public Task<Node> GetChildNode(byte[] parentId, byte[] word)
         {
             const string sql = @"
                 SELECT id, parent_id, word, data_id, weight, modified_on, version
@@ -102,10 +144,10 @@
                 AND word = @word
                 LIMIT 1;";
 
-            return await db.QuerySingle(sql, new { parentId, word, }, ToNode);
+            return db.QuerySingle(sql, new { parentId, word, }, ToNode);
         }
 
-        public async Task<Node> InsertNode(Node node)
+        public Task InsertNode(Node node)
         {
             const string sql = @"
                 INSERT INTO nodes 
@@ -113,7 +155,7 @@
                 VALUES
                 (@id, @parent_id, @word, @data_id, @weight, @modified_on, @version);";
 
-            await db.Execute(sql, new
+            return db.Execute(sql, new
             {
                 id = node.Id,
                 parent_id = node.ParentId,
@@ -123,8 +165,6 @@
                 modified_on = node.ModifiedOn,
                 version = node.Version,
             });
-
-            return node;
         }
 
         public async Task<Node> UpdateNode(Node node)
@@ -158,40 +198,28 @@
             return node;
         }
 
-        public async Task<int> DeleteNode(byte[] id, int version)
+        public Task<int> DeleteNode(byte[] id, int version)
         {
             const string sql = @"
                 DELETE FROM nodes 
                 WHERE id = @id 
                 AND version = @version;";
 
-            return await db.Execute(sql, new { id, version });
+            return db.Execute(sql, new { id, version });
         }
 
-        private static Node ToNode(IDataReader reader)
+        private static Node ToNode(DbDataReader reader)
         {
-            // id, parent_id, word, data_id, weight, modified_on, version
             return new Node()
             {
                 Id = (byte[])reader.GetValue(0),
-                ParentId = (byte[])reader.GetValue(1),
+                ParentId = reader.GetNullableValue<byte[]>(1),
                 Word = (byte[])reader.GetValue(2),
                 DataId = (byte[])reader.GetValue(3),
                 Weight = new BigInteger((byte[])reader.GetValue(4)),
                 ModifiedOn = reader.GetDateTime(5),
                 Version = reader.GetInt32(6),
             };
-
-            //return new Node()
-            //{
-            //    Id = (byte[])reader["id"],
-            //    ParentId = (byte[])reader["parent_id"],
-            //    Word = (byte[])reader["word"],
-            //    DataId = (byte[])reader["data_id"],
-            //    Weight = new BigInteger((byte[])reader["weight"]),
-            //    ModifiedOn = (DateTime)reader["modified_on"],
-            //    Version = (int)reader["version"],
-            //};
         }
 
         #endregion
