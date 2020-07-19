@@ -3,11 +3,8 @@
     using Models;
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Data.Common;
-    using System.Linq;
     using System.Numerics;
-    using System.Reflection.Emit;
     using System.Threading.Tasks;
     using Utility;
 
@@ -89,6 +86,15 @@
             return db.QuerySingle(sql, new { id }, ToContent);
         }
 
+        public Task<int> DeleteContent(byte[] id)
+        {
+            const string sql = @"
+                DELETE FROM contents 
+                WHERE id = @id;";
+
+            return db.Execute(sql, new { id });
+        }
+
         public static Content ToContent(DbDataReader reader)
         {
             return new Content()
@@ -113,18 +119,7 @@
             return db.QuerySingle(sql, new { id }, ToNode);
         }
 
-        public Task<IEnumerable<Node>> GetNodesByLabel(byte[] word, int limit = LIMIT)
-        {
-            const string sql = @"
-                SELECT id, parent_id, word, data_id, weight, modified_on, version
-                FROM nodes 
-                WHERE word = @word
-                LIMIT @limit;";
-
-            return db.Query(sql, new { word, limit }, ToNode);
-        }
-
-        public Task<IEnumerable<Node>> GetNodesByParent(byte[] parentId, int limit = LIMIT)
+        public Task<IEnumerable<Node>> GetChildNodes(byte[] parentId, int limit = LIMIT)
         {
             const string sql = @"
                 SELECT id, parent_id, word, data_id, weight, modified_on, version
@@ -147,7 +142,27 @@
             return db.QuerySingle(sql, new { parentId, word, }, ToNode);
         }
 
-        public Task InsertNode(Node node)
+        public Task<IEnumerable<Node>> GetNodeAncestry(byte[] id)
+        {
+            const string sql = @"
+                WITH RECURSIVE node_tree (id, parent_id, word, data_id, weight, modified_on, version) AS (
+                    SELECT n1.id, n1.parent_id, n1.word, n1.data_id, n1.weight, n1.modified_on, n1.version
+                    FROM nodes n1
+                    WHERE n1.id = @id
+
+                    UNION ALL
+
+                    SELECT n2.id, n2.parent_id, n2.word, n2.data_id, n2.weight, n2.modified_on, n2.version
+                    FROM nodes n2
+                    JOIN node_tree ON n2.id = node_tree.parent_id
+                )
+                SELECT id, parent_id, word, data_id, weight, modified_on, version
+                FROM node_tree;";
+
+            return db.Query(sql, new { id }, ToNode);
+        }
+
+        public Task<int> InsertNode(Node node)
         {
             const string sql = @"
                 INSERT INTO nodes 
