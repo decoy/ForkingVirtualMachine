@@ -190,10 +190,8 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsExeStack()
         {
-            // going to have to rebuild this recurs
             var fun = ProgramBuilder.Create(p => p
-                .Define(Op.x, d => d.Execute(Op.y))
-                .Define(Op.y, d => d.Execute(Op.x))
+                .Define(Op.x, d => d.Execute(Op.x))
                 .Execute(Op.x));
 
             var col = new Collector();
