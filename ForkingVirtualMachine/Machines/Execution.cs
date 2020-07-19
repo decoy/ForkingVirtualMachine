@@ -1,9 +1,9 @@
-﻿namespace ForkingVirtualMachine
+﻿namespace ForkingVirtualMachine.Machines
 {
     using System;
     using System.Buffers.Binary;
 
-    public class VirtualMachine : IVirtualMachine
+    public class Execution : IVirtualMachine
     {
         private readonly IDescribe scope;
 
@@ -11,7 +11,7 @@
         private int len;
         private int i;
 
-        public VirtualMachine(IDescribe loader, ReadOnlyMemory<byte> data)
+        public Execution(IDescribe loader, ReadOnlyMemory<byte> data)
         {
             this.scope = loader;
             this.data = data;

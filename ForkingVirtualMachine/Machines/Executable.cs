@@ -1,24 +1,22 @@
-﻿using System;
-
-namespace ForkingVirtualMachine.Machines
+﻿namespace ForkingVirtualMachine.Machines
 {
+    using System;
+
     public class Executable : IVirtualMachine
     {
-        public readonly ReadOnlyMemory<byte> Id;
-
-        public readonly ReadOnlyMemory<byte> Data;
+        private readonly ReadOnlyMemory<byte> data;
 
         private readonly IDescribe scope;
 
         public Executable(IDescribe scope, ReadOnlyMemory<byte> data)
         {
-            Data = data;
+            this.data = data;
             this.scope = scope;
         }
 
         public void Execute(Context context)
         {
-            context.Push(new VirtualMachine(scope, Data));
+            context.Push(new Execution(scope, data));
         }
     }
 }

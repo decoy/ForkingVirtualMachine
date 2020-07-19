@@ -20,15 +20,16 @@ namespace ForkingVirtualMachine.Test
 
         private static Context CreateContext(Collector col, byte[] data)
         {
-            var machines = new Dictionary<BigInteger, IVirtualMachine>();
-            var scope = new Define(machines);
+            var scope = new Scope(null);
+            var define = new Define(scope);
 
-            machines.Add(Op.Push, scope);
-            machines.Add(Op.Add, Add.Machine);
-            machines.Add(Op.Print, col);
+            scope.Set(Op.Push, define);
+            scope.Set(Op.Add, Add.Machine);
+            scope.Set(Op.Print, col);
+            scope.Set(Op.NoOp, NoOp.Machine);
 
             var ctx = new Context();
-            ctx.Push(new VirtualMachine(scope, data));
+            ctx.Push(new Execution(define, data));
 
             return ctx;
         }
@@ -36,14 +37,13 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void RunsMachine()
         {
-            var fun = ProgramBuilder.Create()
-                   .Add(
-                        1, 2,
-                        1, 5,
-                        1, Op.Add, 0,
-                        1, Op.Print, 0
-                   )
-                   .ToBytes();
+            var fun = ProgramBuilder.Create(p => p
+                .Write(new byte[] {
+                    1, 2,
+                    1, 5,
+                    1, Op.Add, 0,
+                    1, Op.Print, 0
+                }));
 
             var col = new Collector();
 
@@ -55,8 +55,8 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void RunsFunction()
         {
-            var fun = ProgramBuilder.Create()
-                .Define(Op.x, (p) => p
+            var fun = ProgramBuilder.Create(p => p
+                .Define(Op.x, (d) => d
                     .Push(1000)
                     .Execute(Op.Add)
                  )
@@ -65,8 +65,8 @@ namespace ForkingVirtualMachine.Test
                 .Push(99)
                 .Execute(Op.Print)
                 .Push(7)
-                .Execute(Op.x, Op.Print)
-                .ToBytes();
+                .Execute(Op.x)
+                .Execute(Op.Print));
 
             var col = new Collector();
 
@@ -168,13 +168,13 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsDataStack()
         {
-            var p = ProgramBuilder.Create();
-            for (var i = 0; i < Constants.MAX_STACK_DEPTH + 1; i++)
+            var fun = ProgramBuilder.Create(p =>
             {
-                p.Push(5);
-            }
-
-            var fun = p.ToBytes();
+                for (var i = 0; i < Constants.MAX_STACK_DEPTH + 1; i++)
+                {
+                    p.Push(5);
+                }
+            });
 
             var col = new Collector();
             var ctx = CreateContext(col, fun);
@@ -190,11 +190,11 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsExeStack()
         {
-            var fun = ProgramBuilder.Create()
-                .Define(Op.x, p => p.Execute(Op.y))
-                .Define(Op.y, p => p.Execute(Op.x))
-                .Execute(Op.x)
-                .ToBytes();
+            // going to have to rebuild this recurs
+            var fun = ProgramBuilder.Create(p => p
+                .Define(Op.x, d => d.Execute(Op.y))
+                .Define(Op.y, d => d.Execute(Op.x))
+                .Execute(Op.x));
 
             var col = new Collector();
             var ctx = CreateContext(col, fun);
@@ -210,13 +210,13 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsTicks()
         {
-            var p = ProgramBuilder.Create();
-            for (var i = 0; i < Constants.MAX_TICKS + 1; i++)
+            var fun = ProgramBuilder.Create(p =>
             {
-                p.Execute(Op.NoOp);
-            }
-
-            var fun = p.ToBytes();
+                for (var i = 0; i < Constants.MAX_TICKS + 1; i++)
+                {
+                    p.Execute(Op.NoOp);
+                }
+            });
 
             var col = new Collector();
             var ctx = CreateContext(col, fun);

@@ -2,82 +2,88 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Numerics;
 
-    public class ProgramBuilder
+    public static class ProgramBuilder
     {
-        private readonly List<byte> program = new List<byte>();
+        public static byte EXECUTE = Constants.EXECUTE;
+        public static byte DEFINE = Constants.PUSH;
 
-        public static ProgramBuilder Create()
+        public static byte[] Create(Action<Stream> create)
         {
-            return new ProgramBuilder();
-        }
-
-        public byte[] ToBytes()
-        {
-            return program.ToArray();
-        }
-
-        public ProgramBuilder Push(params BigInteger[] numbers)
-        {
-            Push(numbers.Select(n => n.ToByteArray()));
-            return this;
-        }
-
-        public ProgramBuilder Push(IEnumerable<byte[]> buffers)
-        {
-            foreach (var data in buffers)
+            using (var stream = new MemoryStream())
             {
-                Push(data);
+                create(stream);
+                return stream.ToArray();
             }
-            return this;
         }
 
-        public ProgramBuilder Push(byte[] data)
+        public static Stream Execute(this Stream stream, byte word)
+        {
+            Push(stream, word);
+            stream.WriteByte(EXECUTE);
+            return stream;
+        }
+
+        public static Stream Execute(this Stream stream, BigInteger word)
+        {
+            Push(stream, word);
+            stream.WriteByte(EXECUTE);
+            return stream;
+        }
+
+        public static Stream Execute(this Stream stream, ReadOnlySpan<byte> word)
+        {
+            Push(stream, word);
+            stream.WriteByte(EXECUTE);
+            return stream;
+        }
+
+        public static Stream Push(this Stream stream, ReadOnlySpan<byte> data)
         {
             if (data.Length >= 255)
             {
-                program.Add(255);
-                program.AddRange(BitConverter.GetBytes(data.Length));
+                stream.WriteByte(255);
+                stream.Write(BitConverter.GetBytes(data.Length));
             }
             else
             {
-                program.Add((byte)data.Length);
+                stream.WriteByte((byte)data.Length);
             }
 
-            program.AddRange(data);
+            stream.Write(data);
 
-            return this;
+            return stream;
         }
 
-        public ProgramBuilder Add(params byte[] data)
+        public static Stream Push(this Stream stream, byte data)
         {
-            program.AddRange(data);
-            return this;
+            stream.WriteByte(1);
+            stream.WriteByte(data);
+            return stream;
         }
 
-        public ProgramBuilder Execute(params byte[] words)
+        public static Stream Push(this Stream stream, BigInteger data)
         {
-            foreach (var word in words)
-            {
-                Push(word);
-                program.Add(Constants.EXECUTE);
-            }
-
-            return this;
+            Push(stream, data.ToByteArray());
+            return stream;
         }
 
-        public ProgramBuilder Define(byte word, Action<ProgramBuilder> build)
+
+        public static Stream Push(this Stream stream, Action<Stream> build)
         {
-            var next = new ProgramBuilder();
-            build(next);
+            Push(stream, Create(build));
+            return stream;
+        }
 
-            Push(next.ToBytes());
-            Push(word);
-            Execute(Constants.PUSH); // store
-
-            return this;
+        public static Stream Define(this Stream stream, byte word, Action<Stream> build)
+        {
+            Push(stream, build);
+            Push(stream, word);
+            Execute(stream, DEFINE);
+            return stream;
         }
     }
 }
