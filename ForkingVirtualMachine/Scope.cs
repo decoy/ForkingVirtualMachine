@@ -1,23 +1,25 @@
 ﻿namespace ForkingVirtualMachine
 {
+    using ForkingVirtualMachine.Utility;
     using System;
+    using System.Collections.Generic;
 
     public class Scope : IDescribe
     {
         public readonly ReadOnlyMemory<byte> Id;
 
-        private readonly Store<IVirtualMachine> machines;
+        private readonly Dictionary<byte[], IVirtualMachine> machines;
 
         public Scope(ReadOnlyMemory<byte> id)
         {
             Id = id;
-            machines = new Store<IVirtualMachine>();
+            machines = machines.Fork();
         }
 
-        public Scope(ReadOnlyMemory<byte> id, Store<IVirtualMachine> machines)
+        public Scope(ReadOnlyMemory<byte> id, Dictionary<byte[], IVirtualMachine> machines)
         {
             Id = id;
-            this.machines = machines;
+            this.machines = machines.Fork();
         }
 
         public void Set(byte key, IVirtualMachine machine)
@@ -50,7 +52,7 @@
 
         public Scope Fork(ReadOnlyMemory<byte> id)
         {
-            return new Scope(id, new Store<IVirtualMachine>(machines));
+            return new Scope(id, machines.Fork());
         }
     }
 }

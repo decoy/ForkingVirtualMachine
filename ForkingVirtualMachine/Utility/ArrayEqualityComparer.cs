@@ -1,4 +1,4 @@
-﻿namespace ForkingVirtualMachine
+﻿namespace ForkingVirtualMachine.Utility
 {
     using System.Collections.Generic;
 
@@ -48,16 +48,5 @@
                 return hash;
             }
         }
-    }
-
-    public class Store<T> : Dictionary<byte[], T>
-    {
-        public Store()
-            : base(new ArrayEqualityComparer<byte>())
-        { }
-
-        public Store(IDictionary<byte[], T> dictionary)
-            : base(dictionary, new ArrayEqualityComparer<byte>())
-        { }
     }
 }
