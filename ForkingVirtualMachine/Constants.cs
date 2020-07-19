@@ -18,7 +18,7 @@
 
         public const byte MAX_INT_BYTES = 16;
 
-        public const byte PUSH = 1;
+        public const byte DEFINE = 1;
 
         public const byte EXECUTE = 0;
     }

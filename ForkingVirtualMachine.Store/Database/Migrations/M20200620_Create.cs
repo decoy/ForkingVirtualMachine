@@ -6,49 +6,42 @@
 
     public class M20200620_Create : IMigrate
     {
-        public static async Task CreateNodesTable(DbConnection db)
+        public static Task CreateNodesTable(DbConnection db)
         {
-            // CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-            // SELECT uuid_generate_v1();
-            //id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             const string sql = @"
                 CREATE TABLE nodes (
-                    id UUID PRIMARY KEY,                
-                    parent_id UUID,
-                    type VARCHAR(25) NOT NULL,
-                    label BYTEA NOT NULL,
-                    value BYTEA,
-                    version INTEGER NOT NULL,
-                    modified_on TIMESTAMP NOT NULL
+                    id          BLOB     PRIMARY KEY
+                                         UNIQUE
+                                         NOT NULL,
+                    parent_id   BLOB     REFERENCES nodes (id),
+                    word        BLOB     NOT NULL,
+                    data_id     BLOB     NOT NULL
+                                         REFERENCES contents (id),
+                    weight      BLOB     NOT NULL,
+                    modified_on DATETIME NOT NULL,
+                    version     INTEGER  NOT NULL
                 );";
 
-            //TODO indexes
-
-            await db.Execute(sql);
+            return db.Execute(sql);
         }
 
-        public static async Task CreateNodeHistoryTable(DbConnection db)
+        public static Task CreateContentsTable(DbConnection db)
         {
-            // THE FEED
-
             const string sql = @"
-                CREATE TABLE node_history (
-                    id UUID PRIMARY KEY,                
-                    parent_id UUID,
-                    type VARCHAR(25) NOT NULL,
-                    label BYTEA NOT NULL,
-                    value BYTEA,
-                    version INTEGER NOT NULL,
-                    modified_on TIMESTAMP NOT NULL
+                CREATE TABLE contents (
+                    id   BLOB PRIMARY KEY
+                              UNIQUE,
+                    data BLOB NOT NULL
                 );";
 
-            await db.Execute(sql);
+            return db.Execute(sql);
         }
 
         public async Task Up(DbConnection db)
         {
             using (var trans = db.BeginTransaction())
             {
+                await CreateContentsTable(db);
                 await CreateNodesTable(db);
                 trans.Commit();
             }

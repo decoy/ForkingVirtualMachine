@@ -27,9 +27,9 @@
 
         public async Task<IEnumerable<Migration>> GetMigrations()
         {
-            const string sql = @"SELECT * FROM migrations ORDER BY name;";
+            const string sql = @"SELECT name, ran_on FROM migrations ORDER BY name;";
 
-            return await db.Query(sql, r => r.MapTo(new Migration()));
+            return await db.Query(sql, ToMigration);
         }
 
         public async Task<int> InsertMigration(string name, DateTime ranOn)
@@ -47,14 +47,23 @@
             });
         }
 
+        public static Migration ToMigration(IDataReader reader)
+        {
+            return new Migration()
+            {
+                name = reader.GetString(0),
+                ran_on = reader.GetDateTime(1)
+            };
+        }
+
         #endregion
 
         #region Nodes
 
-        public async Task<Node> GetNode(Guid id)
+        public async Task<Node> GetNode(byte[] id)
         {
             const string sql = @"
-                SELECT * 
+                SELECT id, parent_id, word, data_id, weight, modified_on, version
                 FROM nodes 
                 WHERE id = @id
                 LIMIT 1;";
@@ -62,72 +71,68 @@
             return await db.QuerySingle(sql, new { id }, ToNode);
         }
 
-        public async Task<IEnumerable<Node>> GetNodesByLabel(byte[] label, int limit = LIMIT)
+        public async Task<IEnumerable<Node>> GetNodesByLabel(byte[] word, int limit = LIMIT)
         {
             const string sql = @"
-                SELECT * 
+                SELECT id, parent_id, word, data_id, weight, modified_on, version
                 FROM nodes 
-                WHERE label = @label
+                WHERE word = @word
                 LIMIT @limit;";
 
-            return await db.Query(sql, new { label, limit }, ToNode);
+            return await db.Query(sql, new { word, limit }, ToNode);
         }
 
-        public async Task<IEnumerable<Node>> GetNodesByParent(Guid parentId, int limit = LIMIT)
+        public async Task<IEnumerable<Node>> GetNodesByParent(byte[] parentId, int limit = LIMIT)
         {
             const string sql = @"
-                SELECT * 
-                FROM nodes 
-                WHERE parent_id = @parent_id
-                LIMIT @limit;";
-
-            return await db.Query(sql, new { parent_id = parentId, limit }, ToNode);
-        }
-
-        public async Task<Node> GetChildNode(Guid parentId, byte[] label)
-        {
-            const string sql = @"
-                SELECT * 
+                SELECT id, parent_id, word, data_id, weight, modified_on, version
                 FROM nodes 
                 WHERE parent_id = @parentId
-                AND label = @label
-                LIMIT 1;";
+                LIMIT @limit;";
 
-            return await db.QuerySingle(sql, new
-            {
-                parentId,
-                label,
-            }, ToNode);
+            return await db.Query(sql, new { parentId, limit }, ToNode);
         }
 
-        public async Task<Node> InsertNode(Node Node)
+        public async Task<Node> GetChildNode(byte[] parentId, byte[] word)
+        {
+            const string sql = @"
+                SELECT id, parent_id, word, data_id, weight, modified_on, version
+                FROM nodes 
+                WHERE parent_id = @parentId
+                AND word = @word
+                LIMIT 1;";
+
+            return await db.QuerySingle(sql, new { parentId, word, }, ToNode);
+        }
+
+        public async Task<Node> InsertNode(Node node)
         {
             const string sql = @"
                 INSERT INTO nodes 
-                (id, parent_id, type, label, value, modified_on, version)
+                (id, parent_id, word, data_id, weight, modified_on, version)
                 VALUES
-                (@id, @parent_id, @type, @label, @value, @modified_on, @version);";
+                (@id, @parent_id, @word, @data_id, @weight, @modified_on, @version);";
 
             await db.Execute(sql, new
             {
-                id = Node.Id,
-                parent_id = Node.ParentId,
-                type = Node.Type,
-                label = Node.Label,
-                value = Node.Weight.ToByteArray(),
-                modified_on = Node.ModifiedOn,
-                version = Node.Version,
+                id = node.Id,
+                parent_id = node.ParentId,
+                word = node.Word,
+                data_id = node.DataId,
+                weight = node.Weight.ToByteArray(),
+                modified_on = node.ModifiedOn,
+                version = node.Version,
             });
 
-            return Node;
+            return node;
         }
 
-        public async Task<Node> UpdateNode(Node Node)
+        public async Task<Node> UpdateNode(Node node)
         {
             const string sql = @"
                 UPDATE nodes 
                 SET 
-                    value = @value,
+                    weight = @weight,
                     modified_on = @modified_on,
                     version = @newversion
                 WHERE id = @id 
@@ -135,11 +140,11 @@
 
             var updates = await db.Execute(sql, new
             {
-                id = Node.Id,
-                value = Node.Weight.ToByteArray(),
-                modified_on = Node.ModifiedOn,
-                newversion = Node.Version + 1,
-                version = Node.Version,
+                id = node.Id,
+                weight = node.Weight.ToByteArray(),
+                modified_on = node.ModifiedOn,
+                newversion = node.Version + 1,
+                version = node.Version,
             });
 
             if (updates != 1)
@@ -148,12 +153,12 @@
             }
 
             // TODO: don't like this modifying incoming.
-            Node.Version += 1;
+            node.Version += 1;
 
-            return Node;
+            return node;
         }
 
-        public async Task<int> DeleteNode(Guid id, int version)
+        public async Task<int> DeleteNode(byte[] id, int version)
         {
             const string sql = @"
                 DELETE FROM nodes 
@@ -165,16 +170,28 @@
 
         private static Node ToNode(IDataReader reader)
         {
+            // id, parent_id, word, data_id, weight, modified_on, version
             return new Node()
             {
-                Id = (Guid)reader["id"],
-                ParentId = reader.GetValue<Guid?>("parent_id"),
-                Type = (string)reader["type"],
-                Label = (byte[])reader["label"],
-                Weight = new BigInteger((byte[])reader["value"]), // nullable?
-                ModifiedOn = (DateTime)reader["modified_on"],
-                Version = (int)reader["version"],
+                Id = (byte[])reader.GetValue(0),
+                ParentId = (byte[])reader.GetValue(1),
+                Word = (byte[])reader.GetValue(2),
+                DataId = (byte[])reader.GetValue(3),
+                Weight = new BigInteger((byte[])reader.GetValue(4)),
+                ModifiedOn = reader.GetDateTime(5),
+                Version = reader.GetInt32(6),
             };
+
+            //return new Node()
+            //{
+            //    Id = (byte[])reader["id"],
+            //    ParentId = (byte[])reader["parent_id"],
+            //    Word = (byte[])reader["word"],
+            //    DataId = (byte[])reader["data_id"],
+            //    Weight = new BigInteger((byte[])reader["weight"]),
+            //    ModifiedOn = (DateTime)reader["modified_on"],
+            //    Version = (int)reader["version"],
+            //};
         }
 
         #endregion

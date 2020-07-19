@@ -5,13 +5,13 @@
 
     public class Node
     {
-        public Guid Id { get; set; }
+        public byte[] Id { get; set; }
 
-        public Guid? ParentId { get; set; }
+        public byte[] ParentId { get; set; }
 
-        public string Type { get; set; }
+        public byte[] Word { get; set; }
 
-        public byte[] Label { get; set; }
+        public byte[] DataId { get; set; }
 
         public BigInteger Weight { get; set; }
 

@@ -30,9 +30,12 @@
         {
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS migrations (
-                    id SERIAL PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    ran_on TIMESTAMP NOT NULL
+                    id     INTEGER  PRIMARY KEY AUTOINCREMENT
+                                    UNIQUE
+                                    NOT NULL,
+                    name   TEXT     UNIQUE
+                                    NOT NULL,
+                    ran_on DATETIME NOT NULL
                 );";
 
             using (var trans = db.BeginTransaction())

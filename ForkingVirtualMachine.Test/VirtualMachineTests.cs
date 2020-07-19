@@ -23,7 +23,7 @@ namespace ForkingVirtualMachine.Test
             var scope = new Scope(null);
             var define = new Define(scope);
 
-            scope.Set(Op.Push, define);
+            scope.Set(Op.Define, define);
             scope.Set(Op.Add, Add.Machine);
             scope.Set(Op.Print, col);
             scope.Set(Op.NoOp, NoOp.Machine);

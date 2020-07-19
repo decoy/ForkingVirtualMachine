@@ -2,20 +2,13 @@
 {
     public class Op
     {
-        public const byte Exe = Constants.EXECUTE; // also pop?
-        public const byte Push = Constants.PUSH;
+        public const byte Exe = Constants.EXECUTE;
+        public const byte Define = Constants.DEFINE;
 
         public const byte Add = 20;
         public const byte Print = 30;
 
         public const byte NoOp = 40;
-
-        public static class Math
-        {
-            public const byte Namespace = 50;
-            public const byte Subtract = 1;
-            public const byte DivRem = 2;
-        }
 
         public const byte a = 100;
         public const byte b = 101;

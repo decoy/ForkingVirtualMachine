@@ -9,7 +9,7 @@
     public static class ProgramBuilder
     {
         public static byte EXECUTE = Constants.EXECUTE;
-        public static byte DEFINE = Constants.PUSH;
+        public static byte DEFINE = Constants.DEFINE;
 
         public static byte[] Create(Action<Stream> create)
         {
