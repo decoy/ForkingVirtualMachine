@@ -164,6 +164,33 @@ namespace ForkingVirtualMachine.Test
         }
 
         [TestMethod]
+        public void IfsTrue()
+        {
+            var ctx = new Context();
+            ctx.Push(100);
+            ctx.Push(200);
+            ctx.Push(1);
+
+            If.Machine.Execute(ctx);
+
+            Assert.AreEqual(200, ctx.PopInt());
+            Assert.AreEqual(100, ctx.PopInt());
+        }
+
+        [TestMethod]
+        public void IfsFalse()
+        {
+            var ctx = new Context();
+            ctx.Push(100);
+            ctx.Push(200);
+            ctx.Push(0);
+
+            If.Machine.Execute(ctx);
+
+            Assert.AreEqual(100, ctx.PopInt());
+        }
+
+        [TestMethod]
         public void LessThans()
         {
             var ctx = new Context();

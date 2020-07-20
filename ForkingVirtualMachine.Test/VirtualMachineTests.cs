@@ -15,7 +15,7 @@ namespace ForkingVirtualMachine.Test
             return context;
         }
 
-        private static Context CreateContext(Collector col, byte[] data)
+        private static Context CreateContext(Collector col, byte[] exe)
         {
             var scope = new Scope(null);
             var define = new Define(scope);
@@ -26,7 +26,7 @@ namespace ForkingVirtualMachine.Test
             scope.Set(Op.NoOp, NoOp.Machine);
 
             var ctx = new Context();
-            ctx.Push(new Execution(define, data));
+            ctx.Push(new Execution(define, exe));
 
             return ctx;
         }
