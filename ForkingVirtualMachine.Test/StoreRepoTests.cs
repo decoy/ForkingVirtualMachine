@@ -56,7 +56,7 @@ namespace ForkingVirtualMachine.Test
                 var ran = (await repo.GetMigrations()).ToList();
 
                 Assert.AreEqual(1, ran.Count);
-                Assert.AreEqual(typeof(M20200620_Create).Name, ran[0].name);
+                Assert.AreEqual(typeof(M20200620_Create).Name, ran[0].Name);
             }
         }
 

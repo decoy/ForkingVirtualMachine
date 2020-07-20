@@ -37,7 +37,7 @@
             var ran = await repo.GetMigrations();
 
             var migrations = GetMigrators()
-                .Where(m => !ran.Any(r => r.name == m.GetType().Name))
+                .Where(m => !ran.Any(r => r.Name == m.GetType().Name))
                 .ToList();
 
             foreach (var m in migrations)

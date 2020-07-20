@@ -51,8 +51,8 @@
         {
             return new Migration()
             {
-                name = reader.GetString(0),
-                ran_on = reader.GetDateTime(1)
+                Name = reader.GetString(0),
+                RanOn = reader.GetDateTime(1)
             };
         }
 

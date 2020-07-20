@@ -4,8 +4,8 @@
 
     public class Migration
     {
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public DateTime ran_on { get; set; }
+        public DateTime RanOn { get; set; }
     }
 }
