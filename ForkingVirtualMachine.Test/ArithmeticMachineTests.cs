@@ -200,6 +200,30 @@ namespace ForkingVirtualMachine.Test
         }
 
         [TestMethod]
+        public void Maxes()
+        {
+            var ctx = new Context();
+            ctx.Push(5);
+            ctx.Push(2);
+
+            Max.Machine.Execute(ctx);
+
+            Assert.AreEqual(5, ctx.PopInt());
+        }
+
+        [TestMethod]
+        public void Mins()
+        {
+            var ctx = new Context();
+            ctx.Push(5);
+            ctx.Push(2);
+
+            Min.Machine.Execute(ctx);
+
+            Assert.AreEqual(2, ctx.PopInt());
+        }
+
+        [TestMethod]
         public void Modulos()
         {
             var ctx = new Context();
@@ -223,85 +247,84 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(2 * 5, ctx.PopInt());
         }
 
-        //    [TestMethod]
-        //    public void NegatesPos()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 100);
+        [TestMethod]
+        public void NegatesPos()
+        {
+            var ctx = new Context();
+            ctx.Push(5);
 
-        //        Negate.Machine.Execute(ctx);
+            Negate.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(-100, ctx.Machine.LoadInt(Reg.b));
-        //    }
+            Assert.AreEqual(-5, ctx.PopInt());
+        }
 
-        //    [TestMethod]
-        //    public void NegatesNegative()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, -100);
+        [TestMethod]
+        public void NegatesNegative()
+        {
+            var ctx = new Context();
+            ctx.Push(-5);
 
-        //        Negate.Machine.Execute(ctx);
+            Negate.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(100, ctx.Machine.LoadInt(Reg.b));
-        //    }
+            Assert.AreEqual(5, ctx.PopInt());
+        }
 
-        //    [TestMethod]
-        //    public void NotsToFalse()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 100);
+        [TestMethod]
+        public void NotsToFalse()
+        {
+            var ctx = new Context();
+            ctx.Push(100);
 
-        //        Not.Machine.Execute(ctx);
+            Not.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(0, ctx.Machine.LoadInt(Reg.b));
-        //    }
+            Assert.AreEqual(false, ctx.PopBool());
+        }
 
-        //    [TestMethod]
-        //    public void NotsFalseToTrue()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 0);
+        [TestMethod]
+        public void NotsFalseToTrue()
+        {
+            var ctx = new Context();
+            ctx.Push(0);
 
-        //        Not.Machine.Execute(ctx);
+            Not.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(1, ctx.Machine.LoadInt(Reg.b));
-        //    }
+            Assert.AreEqual(true, ctx.PopBool());
+        }
 
-        //    [TestMethod]
-        //    public void Ors()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 0);
-        //        ctx.Machine.Store(Reg.b, 100);
+        [TestMethod]
+        public void Ors()
+        {
+            var ctx = new Context();
+            ctx.Push(0);
+            ctx.Push(1);
 
-        //        Or.Machine.Execute(ctx);
+            Or.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(1, ctx.Machine.LoadInt(Reg.c));
-        //    }
+            Assert.AreEqual(true, ctx.PopBool());
+        }
 
-        //    [TestMethod]
-        //    public void OrsFalse()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 0);
-        //        ctx.Machine.Store(Reg.b, 0);
+        [TestMethod]
+        public void OrsFalse()
+        {
+            var ctx = new Context();
+            ctx.Push(0);
+            ctx.Push(0);
 
-        //        Or.Machine.Execute(ctx);
+            Or.Machine.Execute(ctx);
 
-        //        Assert.AreEqual(0, ctx.Machine.LoadInt(Reg.c));
-        //    }
+            Assert.AreEqual(false, ctx.PopBool());
+        }
 
+        [TestMethod]
+        public void Subtracts()
+        {
+            var ctx = new Context();
+            ctx.Push(5);
+            ctx.Push(2);
 
-        //    [TestMethod]
-        //    public void Subtracts()
-        //    {
-        //        var ctx = CreateContext();
-        //        ctx.Machine.Store(Reg.a, 2);
-        //        ctx.Machine.Store(Reg.b, 5);
+            Subtract.Machine.Execute(ctx);
 
-        //        Subtract.Machine.Execute(ctx);
-
-        //        Assert.AreEqual(2 - 5, ctx.Machine.LoadInt(Reg.c));
-        //    }
+            Assert.AreEqual(2 - 5, ctx.PopInt());
+        }
     }
 }
