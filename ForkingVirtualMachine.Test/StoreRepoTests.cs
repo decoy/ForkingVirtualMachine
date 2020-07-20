@@ -24,6 +24,29 @@ namespace ForkingVirtualMachine.Test
             return db;
         }
 
+        private static Content CreateContent()
+        {
+            return new Content()
+            {
+                Id = Guid.NewGuid().ToByteArray(),
+                Data = Guid.NewGuid().ToByteArray(),
+            };
+        }
+
+        private static Node CreateNode(byte[] dataId, byte[] parentId = null)
+        {
+            return new Node()
+            {
+                Id = Guid.NewGuid().ToByteArray(),
+                ParentId = parentId,
+                DataId = dataId,
+                Word = Guid.NewGuid().ToByteArray(),
+                Weight = 5,
+                ModifiedOn = DateTime.UtcNow,
+                Version = 0,
+            };
+        }
+
         [TestMethod]
         public async Task Migrates()
         {
@@ -38,17 +61,13 @@ namespace ForkingVirtualMachine.Test
         }
 
         [TestMethod]
-        public async Task Nodes()
+        public async Task ContentsCRDTests()
         {
             using (var db = await OpenDb())
             {
                 var repo = new Repository(db);
 
-                var d1 = new Content()
-                {
-                    Id = Guid.NewGuid().ToByteArray(),
-                    Data = Guid.NewGuid().ToByteArray(),
-                };
+                var d1 = CreateContent();
 
                 Assert.AreEqual(1, await repo.InsertContent(d1));
 
@@ -57,16 +76,21 @@ namespace ForkingVirtualMachine.Test
                 Assert.IsTrue(comparer.Equals(d1.Id, ds1.Id));
                 Assert.IsTrue(comparer.Equals(d1.Data, ds1.Data));
 
-                var n1 = new Node()
-                {
-                    Id = Guid.NewGuid().ToByteArray(),
-                    ParentId = null,
-                    DataId = d1.Id,
-                    Word = Guid.NewGuid().ToByteArray(),
-                    Weight = 5,
-                    ModifiedOn = DateTime.UtcNow,
-                    Version = 0,
-                };
+                Assert.AreEqual(1, await repo.DeleteContent(d1.Id));
+                Assert.IsNull(await repo.GetContent(d1.Id));
+            }
+        }
+
+        [TestMethod]
+        public async Task NodesCRUDTests()
+        {
+            using (var db = await OpenDb())
+            {
+                var repo = new Repository(db);
+                var d1 = CreateContent();
+                await repo.InsertContent(d1);
+
+                var n1 = CreateNode(d1.Id);
 
                 Assert.AreEqual(1, await repo.InsertNode(n1));
 
@@ -80,50 +104,52 @@ namespace ForkingVirtualMachine.Test
                 Assert.AreEqual(n1.ModifiedOn, ns1.ModifiedOn);
                 Assert.AreEqual(n1.Version, ns1.Version);
 
-                var n2 = new Node()
-                {
-                    Id = Guid.NewGuid().ToByteArray(),
-                    ParentId = n1.Id,
-                    DataId = d1.Id,
-                    Word = Guid.NewGuid().ToByteArray(),
-                    Weight = 55,
-                    ModifiedOn = DateTime.UtcNow,
-                    Version = 0,
-                };
+                n1.Weight += 100;
+                await repo.UpdateNode(n1);
 
-                var n3 = new Node()
-                {
-                    Id = Guid.NewGuid().ToByteArray(),
-                    ParentId = null,
-                    DataId = d1.Id,
-                    Word = Guid.NewGuid().ToByteArray(),
-                    Weight = 55,
-                    ModifiedOn = DateTime.UtcNow,
-                    Version = 0,
-                };
+                var nsu1 = await repo.GetNode(n1.Id);
 
+                Assert.AreEqual(1, nsu1.Version);
+                Assert.AreEqual(n1.Version, nsu1.Version);
+                Assert.AreEqual(105, nsu1.Weight);
+
+                Assert.AreEqual(1, await repo.DeleteNode(nsu1.Id, nsu1.Version));
+                Assert.IsNull(await repo.GetNode(nsu1.Id));
+            }
+        }
+
+        [TestMethod]
+        public async Task NodesLoadsChildren()
+        {
+            using (var db = await OpenDb())
+            {
+                var repo = new Repository(db);
+
+                var d1 = CreateContent();
+                await repo.InsertContent(d1);
+
+                var n1 = CreateNode(d1.Id);
+                await repo.InsertNode(n1);
+
+                var n2 = CreateNode(d1.Id, n1.Id);
                 await repo.InsertNode(n2);
+
+                var n3 = CreateNode(d1.Id, n1.Id);
                 await repo.InsertNode(n3);
 
-                var nx = await repo.GetNodeAncestry(n2.Id);
-                Assert.AreEqual(2, nx.Count());
+                var n4 = CreateNode(d1.Id);
+                await repo.InsertNode(n4);
 
-                ns1.Weight += 100;
-                await repo.UpdateNode(ns1);
+                var children = await repo.GetChildNodes(n1.Id);
+                Assert.AreEqual(2, children.Count());
 
-                var nss1 = await repo.GetNode(ns1.Id);
-                Assert.AreEqual(1, nss1.Version);
-                Assert.AreEqual(ns1.Version, nss1.Version);
-                Assert.AreEqual(105, nss1.Weight);
+                var child = await repo.GetChildNode(n1.Id, n2.Word);
+                Assert.IsTrue(comparer.Equals(n2.Id, child.Id));
 
-                Assert.AreEqual(1, await repo.DeleteNode(n2.Id, n2.Version));
-                Assert.AreEqual(1, await repo.DeleteNode(ns1.Id, ns1.Version));
-                Assert.IsNull(await repo.GetNode(ns1.Id));
-
-                Assert.AreEqual(1, await repo.DeleteNode(n3.Id, n3.Version));
-
-                Assert.AreEqual(1, await repo.DeleteContent(ds1.Id));
-                Assert.IsNull(await repo.GetContent(d1.Id));
+                var ancestors = await repo.GetNodeAncestry(n3.Id);
+                Assert.AreEqual(2, ancestors.Count());
+                Assert.IsTrue(comparer.Equals(n3.Id, ancestors.First().Id));
+                Assert.IsTrue(comparer.Equals(n1.Id, ancestors.Skip(1).First().Id));
             }
         }
     }
