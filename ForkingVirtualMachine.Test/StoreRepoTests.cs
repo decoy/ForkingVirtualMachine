@@ -113,6 +113,7 @@ namespace ForkingVirtualMachine.Test
 
                 var nss1 = await repo.GetNode(ns1.Id);
                 Assert.AreEqual(1, nss1.Version);
+                Assert.AreEqual(ns1.Version, nss1.Version);
                 Assert.AreEqual(105, nss1.Weight);
 
                 Assert.AreEqual(1, await repo.DeleteNode(n2.Id, n2.Version));

@@ -1,8 +1,5 @@
 using ForkingVirtualMachine.Machines;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace ForkingVirtualMachine.Test
 {
@@ -76,94 +73,6 @@ namespace ForkingVirtualMachine.Test
             Assert.AreEqual(99, col.Collected.Dequeue());
             Assert.AreEqual(1007, col.Collected.Dequeue());
         }
-
-        //    [TestMethod]
-        //    public void RunsNamespace()
-        //    {
-        //        var col = new Collector();
-        //        var vm = CreateTestVm(col);
-        //        var ctx = new Context();
-
-        //        var fun = ProgramBuilder.Create()
-        //            .Add(
-        //                Op.Push, 1, 5,
-        //                Op.Push, 1, 7,
-
-        //                Op.Math.Namespace,
-        //                Op.Math.Subtract,
-
-        //                Op.Print
-        //            )
-        //            .ToBytes();
-
-        //        VirtualMachine.Run(vm, new Execution(ctx, fun));
-
-        //        Assert.AreEqual(2, col.Collected.Dequeue());
-        //    }
-
-        //    [TestMethod]
-        //    public void RunsRedirected()
-        //    {
-        //        var col = new Collector();
-        //        var vm = CreateTestVm(col);
-        //        var ctx = new Context();
-
-        //        var fun = ProgramBuilder.Create()
-        //            .Define(Op.x,
-        //                Op.Push, 1, 100,
-        //                Op.Add
-        //            )
-        //            .ToBytes();
-
-        //        VirtualMachine.Run(vm, new Execution(ctx, fun));
-
-        //        // fork it
-        //        var vm2 = new VirtualMachine();
-        //        vm2.Set(Op.Push, vm.Operations[Op.Push]);
-        //        vm2.Set(Op.Print, vm.Operations[Op.Print]);
-        //        vm2.Set(Op.z, vm.Operations[Op.x]);
-
-        //        var fun2 = ProgramBuilder.Create()
-        //           .Add(
-        //               Op.Push, 1, 5,
-        //               Op.z,
-        //               Op.Print,
-
-        //               Op.Push, 1, 10,
-        //               Op.Add,
-        //               Op.Print
-        //           )
-        //           .ToBytes();
-
-        //        var ctx2 = new Context();
-        //        VirtualMachine.Run(vm2, new Execution(ctx2, fun2));
-
-        //        Assert.AreEqual(105, col.Collected.Dequeue());
-
-        //        // add misses
-        //        Assert.AreEqual(10, col.Collected.Dequeue());
-        //    }
-
-        //    [TestMethod]
-        //    public void RunsSafeWord()
-        //    {
-        //        var col = new Collector();
-        //        var vm = CreateTestVm(col);
-        //        var ctx = new Context();
-
-        //        var fun = ProgramBuilder.Create()
-        //            .Add(
-        //                Op.No,
-        //                Op.Boom
-        //            )
-        //            .ToBytes();
-
-        //        var exe = new Execution(ctx, fun);
-        //        VirtualMachine.Run(vm, exe);
-
-        //        Assert.IsTrue(exe.IsComplete);
-        //        Assert.IsTrue(exe.IsStopped);
-        //    }
 
         [TestMethod]
         public void LimitsDataStack()

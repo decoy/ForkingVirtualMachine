@@ -11,9 +11,9 @@
         private int len;
         private int i;
 
-        public Execution(IDescribe loader, ReadOnlyMemory<byte> data)
+        public Execution(IDescribe scope, ReadOnlyMemory<byte> data)
         {
-            this.scope = loader;
+            this.scope = scope;
             this.data = data;
         }
 

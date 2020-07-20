@@ -182,7 +182,7 @@
             });
         }
 
-        public async Task<Node> UpdateNode(Node node)
+        public async Task UpdateNode(Node node)
         {
             const string sql = @"
                 UPDATE nodes 
@@ -209,8 +209,6 @@
 
             // TODO: don't like this modifying incoming.
             node.Version += 1;
-
-            return node;
         }
 
         public Task<int> DeleteNode(byte[] id, int version)
