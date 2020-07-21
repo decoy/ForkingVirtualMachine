@@ -16,10 +16,13 @@
             var word = context.Pop();
             var data = context.Pop();
 
+            var parent = scope;
+            
             scope = scope.Fork(null);
+            
             scope.Set(
                 word.ToArray(),
-                new Executable(scope, data));
+                new Executable(parent, data));
         }
 
         public IVirtualMachine Describe(ReadOnlyMemory<byte> word)
