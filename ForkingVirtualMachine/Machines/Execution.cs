@@ -5,19 +5,19 @@
 
     public class Execution : IVirtualMachine
     {
-        private readonly IDescribe scope;
+        private readonly IScope scope;
 
         private readonly ReadOnlyMemory<byte> data;
         private int len;
         private int i;
 
-        public Execution(IDescribe scope, ReadOnlyMemory<byte> data)
+        public Execution(IScope scope, ReadOnlyMemory<byte> data)
         {
             this.scope = scope;
             this.data = data;
         }
 
-        public void Execute(Context context)
+        public void Execute(IContext context)
         {
             if (data.Length == i)
             {
@@ -33,9 +33,8 @@
 
                 if (len == Constants.EXECUTE)
                 {
-                    context.Tick();
                     context.Push(this); // save our spot
-                    context.Push(scope.Describe(context.Pop()));
+                    context.Push(scope);
                     return;
                 }
 

@@ -1,4 +1,6 @@
 using ForkingVirtualMachine.Machines;
+using ForkingVirtualMachine.Utility;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ForkingVirtualMachine.Test
@@ -15,18 +17,39 @@ namespace ForkingVirtualMachine.Test
             return context;
         }
 
+        private static void Set(Store<IVirtualMachine> machines, byte word, IVirtualMachine machine)
+        {
+            machines.Set(new[] { word }, machine);
+        }
+
+        private static IScope CreateScope(Collector col)
+        {
+            var machines = new Store<IVirtualMachine>();
+            Set(machines, Op.Add, Add.Machine);
+            Set(machines, Op.Print, col);
+            Set(machines, Op.NoOp, NoOp.Machine);
+            var scope = new Scope(null, machines);
+            return scope;
+        }
+
+        private static Context CreateContext(IScope scope, byte[] exe, IScope caller = null)
+        {
+            var ctx = new Context(caller, new TestCallScheduler());
+            ctx.Push(new Execution(scope, exe));
+            return ctx;
+        }
+
         private static Context CreateContext(Collector col, byte[] exe)
         {
-            var scope = new Scope(null);
-            var define = new Define(scope);
+            var machines = new Store<IVirtualMachine>();
+            Set(machines, Op.Add, Add.Machine);
+            Set(machines, Op.Print, col);
+            Set(machines, Op.NoOp, NoOp.Machine);
 
-            scope.Set(Op.Define, define);
-            scope.Set(Op.Add, Add.Machine);
-            scope.Set(Op.Print, col);
-            scope.Set(Op.NoOp, NoOp.Machine);
+            var scope = new Scope(null, machines);
+            var ctx = new Context(null, null);
 
-            var ctx = new Context();
-            ctx.Push(new Execution(define, exe));
+            ctx.Push(new Execution(scope, exe));
 
             return ctx;
         }
@@ -52,11 +75,13 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void RunsFunction()
         {
+
             var fun = ProgramBuilder.Create(p => p
                 .Define(Op.x, (d) => d
                     .Push(1000)
-                    .Execute(Op.Add)
-                 )
+                    .Execute(Op.Add)));
+
+            var run = ProgramBuilder.Create(p => p
                 .Push(long.MaxValue)
                 .Execute(Op.Print)
                 .Push(99)
@@ -66,6 +91,8 @@ namespace ForkingVirtualMachine.Test
                 .Execute(Op.Print));
 
             var col = new Collector();
+
+            var scope = CreateScope(col);
 
             Run(CreateContext(col, fun));
 
@@ -99,9 +126,16 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsExeStack()
         {
-            var fun = ProgramBuilder.Create(p => p
-                .Define(Op.x, d => d.Execute(Op.x))
-                .Execute(Op.x));
+
+            var fun = ProgramBuilder.Create(p =>
+            {
+                p.Define(Op.x, d => d.Execute(Op.NoOp));
+                for (var i = 0; i < Constants.MAX_EXE_DEPTH + 1; i++)
+                {
+                    p.Define(Op.x, d => d.Execute(Op.x));
+                }
+                p.Execute(Op.x);
+            });
 
             var col = new Collector();
             var ctx = CreateContext(col, fun);

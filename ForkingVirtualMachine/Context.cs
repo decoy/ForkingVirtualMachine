@@ -1,15 +1,25 @@
 ﻿namespace ForkingVirtualMachine
 {
+    using ForkingVirtualMachine.Utility;
     using System;
     using System.Collections.Generic;
 
-    public class Context
+    public class Context : IContext
     {
-        public readonly Stack<ReadOnlyMemory<byte>> Stack = new Stack<ReadOnlyMemory<byte>>();
-
         public readonly Stack<IVirtualMachine> Executions = new Stack<IVirtualMachine>();
+        public readonly Stack<ReadOnlyMemory<byte>> Stack = new Stack<ReadOnlyMemory<byte>>();
+        public readonly Store<ReadOnlyMemory<byte>> Definitions = new Store<ReadOnlyMemory<byte>>();
 
         public int Ticks { get; private set; }
+
+        public IScope Caller { get; }
+        public ICallScheduler Scheduler { get; }
+
+        public Context(IScope caller, ICallScheduler scheduler)
+        {
+            Caller = caller;
+            Scheduler = scheduler;
+        }
 
         public void Tick()
         {
@@ -48,6 +58,17 @@
         public ReadOnlyMemory<byte> Pop()
         {
             return Stack.Pop();
+        }
+
+        public void Call(IScope from, byte[] scopeId, ReadOnlyMemory<byte> data)
+        {
+            // needs that scheduler
+            throw new NotImplementedException();
+        }
+
+        public void Define(byte[] word, ReadOnlyMemory<byte> data)
+        {
+            Definitions.Set(word, data);
         }
     }
 }

@@ -2,32 +2,20 @@
 {
     using System;
 
-    public class Define : IVirtualMachine, IDescribe
+    public class Define : IScope
     {
-        private Scope scope;
+        public static readonly byte[] UID = Guid.Parse("CAFA8CAD-0807-4984-95F2-9C7B8B751BCA").ToByteArray();
 
-        public Define(Scope scope)
-        {
-            this.scope = scope;
-        }
+        public static readonly IScope Machine = new Define();
 
-        public void Execute(Context context)
+        public byte[] Id => UID;
+
+        public void Execute(IContext context)
         {
-            var word = context.Pop();
+            var word = context.Pop().ToArray();
             var data = context.Pop();
 
-            var parent = scope;
-            
-            scope = scope.Fork(null);
-            
-            scope.Set(
-                word.ToArray(),
-                new Executable(parent, data));
-        }
-
-        public IVirtualMachine Describe(ReadOnlyMemory<byte> word)
-        {
-            return scope.Describe(word);
+            context.Define(word, data);
         }
     }
 }

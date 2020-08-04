@@ -4,7 +4,7 @@
     {
         public static readonly IVirtualMachine Machine = new If();
 
-        public void Execute(Context context)
+        public void Execute(IContext context)
         {
             if (!context.PopBool())
             {

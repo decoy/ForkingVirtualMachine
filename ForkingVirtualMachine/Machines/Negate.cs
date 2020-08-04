@@ -4,7 +4,7 @@
     {
         public static readonly IVirtualMachine Machine = new Negate();
 
-        public void Execute(Context context)
+        public void Execute(IContext context)
         {
             var a = context.PopInt();
             context.Push(-a);

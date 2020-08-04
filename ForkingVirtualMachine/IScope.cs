@@ -1,8 +1,7 @@
 ﻿namespace ForkingVirtualMachine
 {
-    interface IScope : IDescribe
+    public interface IScope : IVirtualMachine
     {
-        public void Define(byte[] word, IVirtualMachine machine);
-        public void Call(byte[] scopeId, byte[] word, Context context);
+        public byte[] Id { get; }
     }
 }

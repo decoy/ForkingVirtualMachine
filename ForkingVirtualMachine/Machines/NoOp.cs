@@ -4,6 +4,6 @@
     {
         public static readonly IVirtualMachine Machine = new NoOp();
 
-        public void Execute(Context context) { }
+        public void Execute(IContext context) { }
     }
 }

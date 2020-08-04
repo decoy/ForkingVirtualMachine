@@ -1,15 +1,12 @@
 ﻿namespace ForkingVirtualMachine
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Numerics;
 
     public static class ProgramBuilder
     {
         public static byte EXECUTE = Constants.EXECUTE;
-        public static byte DEFINE = Constants.DEFINE;
 
         public static byte[] Create(Action<Stream> create)
         {
@@ -18,6 +15,12 @@
                 create(stream);
                 return stream.ToArray();
             }
+        }
+
+        public static Stream Execute(this Stream stream)
+        {
+            stream.WriteByte(EXECUTE);
+            return stream;
         }
 
         public static Stream Execute(this Stream stream, byte word)
@@ -71,10 +74,17 @@
             return stream;
         }
 
-
         public static Stream Push(this Stream stream, Action<Stream> build)
         {
             Push(stream, Create(build));
+            return stream;
+        }
+
+        public static Stream Define(this Stream stream, byte[] word, Action<Stream> build)
+        {
+            Push(stream, build);
+            Push(stream, word);
+            stream.WriteByte(EXECUTE);
             return stream;
         }
 
@@ -82,7 +92,7 @@
         {
             Push(stream, build);
             Push(stream, word);
-            Execute(stream, DEFINE);
+            stream.WriteByte(EXECUTE);
             return stream;
         }
     }

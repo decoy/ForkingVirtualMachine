@@ -2,9 +2,13 @@
 {
     public static class Constants
     {
-        public static readonly byte[] True = new byte[1] { 1 };
+        public static readonly byte[] One = new byte[1] { 1 };
+
+        public static readonly byte[] Zero = new byte[1] { 0 };
 
         public static readonly byte[] Empty = new byte[0];
+
+        public static readonly byte[] True = One;
 
         public static readonly byte[] False = Empty;
 
