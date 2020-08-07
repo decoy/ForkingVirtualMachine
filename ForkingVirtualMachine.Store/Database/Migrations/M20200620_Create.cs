@@ -14,7 +14,6 @@
                                          UNIQUE
                                          NOT NULL,
                     parent_id   BLOB     REFERENCES nodes (id),
-                    word        BLOB     NOT NULL,
                     data_id     BLOB     NOT NULL
                                          REFERENCES contents (id),
                     weight      BLOB     NOT NULL,

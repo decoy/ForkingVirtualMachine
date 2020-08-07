@@ -40,7 +40,6 @@ namespace ForkingVirtualMachine.Test
                 Id = Guid.NewGuid().ToByteArray(),
                 ParentId = parentId,
                 DataId = dataId,
-                Word = Guid.NewGuid().ToByteArray(),
                 Weight = 5,
                 ModifiedOn = DateTime.UtcNow,
                 Version = 0,
@@ -99,13 +98,12 @@ namespace ForkingVirtualMachine.Test
                 Assert.IsTrue(comparer.Equals(n1.Id, ns1.Id));
                 Assert.IsTrue(comparer.Equals(n1.ParentId, ns1.ParentId));
                 Assert.IsTrue(comparer.Equals(n1.DataId, ns1.DataId));
-                Assert.IsTrue(comparer.Equals(n1.Word, ns1.Word));
                 Assert.AreEqual(n1.Weight, ns1.Weight);
                 Assert.AreEqual(n1.ModifiedOn, ns1.ModifiedOn);
                 Assert.AreEqual(n1.Version, ns1.Version);
 
                 n1.Weight += 100;
-                await repo.UpdateNode(n1);
+                await repo.UpdateNode(n1, n1.Version + 1);
 
                 var nsu1 = await repo.GetNode(n1.Id);
 
@@ -142,9 +140,6 @@ namespace ForkingVirtualMachine.Test
 
                 var children = await repo.GetChildNodes(n1.Id);
                 Assert.AreEqual(2, children.Count());
-
-                var child = await repo.GetChildNode(n1.Id, n2.Word);
-                Assert.IsTrue(comparer.Equals(n2.Id, child.Id));
 
                 var ancestors = await repo.GetNodeAncestry(n3.Id);
                 Assert.AreEqual(2, ancestors.Count());

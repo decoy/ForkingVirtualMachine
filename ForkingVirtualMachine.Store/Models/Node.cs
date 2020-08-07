@@ -9,8 +9,6 @@
 
         public byte[] ParentId { get; set; }
 
-        public byte[] Word { get; set; }
-
         public byte[] DataId { get; set; }
 
         public BigInteger Weight { get; set; }
