@@ -173,8 +173,8 @@ namespace ForkingVirtualMachine.Test
         {
             var ctx = Create();
             ctx.Push(100);
-            ctx.Push(200);
             ctx.Push(1);
+            ctx.Push(200);            
 
             If.Machine.Execute(null, ctx);
 
@@ -185,10 +185,11 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void IfsFalse()
         {
-            var ctx = Create();
+            var ctx = Create();            
             ctx.Push(100);
-            ctx.Push(200);
             ctx.Push(0);
+            ctx.Push(200);
+
 
             If.Machine.Execute(null, ctx);
 

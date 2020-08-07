@@ -79,21 +79,5 @@
             Push(stream, Create(build));
             return stream;
         }
-
-        public static Stream Define(this Stream stream, byte[] word, Action<Stream> build)
-        {
-            Push(stream, build);
-            Push(stream, word);
-            stream.WriteByte(EXECUTE);
-            return stream;
-        }
-
-        public static Stream Define(this Stream stream, byte word, Action<Stream> build)
-        {
-            Push(stream, build);
-            Push(stream, word);
-            stream.WriteByte(EXECUTE);
-            return stream;
-        }
     }
 }

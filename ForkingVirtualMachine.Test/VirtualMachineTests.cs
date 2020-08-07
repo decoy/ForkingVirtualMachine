@@ -28,6 +28,7 @@ namespace ForkingVirtualMachine.Test
             Set(machines, Op.Add, Add.Machine);
             Set(machines, Op.Print, col);
             Set(machines, Op.NoOp, NoOp.Machine);
+            Set(machines, Op.Define, Define.Machine);
             var scope = new Scope(null, machines);
             return scope;
         }
@@ -45,6 +46,7 @@ namespace ForkingVirtualMachine.Test
             Set(machines, Op.Add, Add.Machine);
             Set(machines, Op.Print, col);
             Set(machines, Op.NoOp, NoOp.Machine);
+            Set(machines, Op.Define, Define.Machine);
 
             var scope = new Scope(null, machines);
             var ctx = new Context(null, null);
@@ -77,18 +79,18 @@ namespace ForkingVirtualMachine.Test
         {
 
             var fun = ProgramBuilder.Create(p => p
-                .Define(Op.x, (d) => d
-                    .Push(1000)
-                    .Execute(Op.Add)));
+                .Push(d => d.Push(1000).Execute(Op.Add))
+                .Push(Op.x)
+                .Execute(Op.Define)
 
-            var run = ProgramBuilder.Create(p => p
                 .Push(long.MaxValue)
                 .Execute(Op.Print)
                 .Push(99)
                 .Execute(Op.Print)
                 .Push(7)
                 .Execute(Op.x)
-                .Execute(Op.Print));
+                .Execute(Op.Print)
+                );
 
             var col = new Collector();
 
@@ -126,15 +128,17 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsExeStack()
         {
-            var fun = ProgramBuilder.Create(p =>
-            {
-                p.Define(Op.x, d => d.Execute(Op.NoOp));
-                for (var i = 0; i < Constants.MAX_EXE_DEPTH + 1; i++)
-                {
-                    p.Define(Op.x, d => d.Execute(Op.x));
-                }
-                p.Execute(Op.x);
-            });
+            var fun = ProgramBuilder.Create(p => p
+                .Push(d => d.Execute(Op.y))
+                .Push(Op.x)
+                .Execute(Op.Define)
+
+                .Push(d => d.Execute(Op.x))
+                .Push(Op.y)
+                .Execute(Op.Define)
+
+                .Execute(Op.x)
+            );
 
             var col = new Collector();
             var ctx = CreateContext(col, fun);

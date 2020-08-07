@@ -33,6 +33,7 @@
 
                 if (len == Constants.EXECUTE)
                 {
+                    context.Tick();
                     context.Push(this); // save our spot
                     context.Push(scope);
                     return;
