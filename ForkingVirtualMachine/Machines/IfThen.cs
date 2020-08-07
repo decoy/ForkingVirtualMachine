@@ -1,8 +1,8 @@
 ﻿namespace ForkingVirtualMachine.Machines
 {
-    public class If : IVirtualMachine
+    public class IfThen : IVirtualMachine
     {
-        public static readonly IVirtualMachine Machine = new If();
+        public static readonly IVirtualMachine Machine = new IfThen();
 
         public void Execute(IScope scope, IContext context)
         {

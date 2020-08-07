@@ -169,31 +169,60 @@ namespace ForkingVirtualMachine.Test
         }
 
         [TestMethod]
-        public void IfsTrue()
+        public void IfThensTrue()
         {
             var ctx = Create();
             ctx.Push(100);
             ctx.Push(1);
-            ctx.Push(200);            
+            ctx.Push(200);
 
-            If.Machine.Execute(null, ctx);
+            IfThen.Machine.Execute(null, ctx);
 
             Assert.AreEqual(200, ctx.PopInt());
             Assert.AreEqual(100, ctx.PopInt());
         }
 
         [TestMethod]
-        public void IfsFalse()
+        public void IfThensFalse()
         {
-            var ctx = Create();            
+            var ctx = Create();
             ctx.Push(100);
             ctx.Push(0);
             ctx.Push(200);
 
-
-            If.Machine.Execute(null, ctx);
+            IfThen.Machine.Execute(null, ctx);
 
             Assert.AreEqual(100, ctx.PopInt());
+        }
+
+        [TestMethod]
+        public void IfThenElsesTrue()
+        {
+            var ctx = Create();
+            ctx.Push(5);
+            ctx.Push(1);
+            ctx.Push(100);
+            ctx.Push(200);
+
+            IfThenElse.Machine.Execute(null, ctx);
+
+            Assert.AreEqual(200, ctx.PopInt());
+            Assert.AreEqual(5, ctx.PopInt());
+        }
+
+        [TestMethod]
+        public void IfThenElsesFalse()
+        {
+            var ctx = Create();
+            ctx.Push(5);
+            ctx.Push(0);
+            ctx.Push(100);
+            ctx.Push(200);
+
+            IfThenElse.Machine.Execute(null, ctx);
+
+            Assert.AreEqual(100, ctx.PopInt());
+            Assert.AreEqual(5, ctx.PopInt());
         }
 
         [TestMethod]
