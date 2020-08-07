@@ -2,9 +2,9 @@
 {
     public class Caller : IVirtualMachine
     {
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
-            context.Caller.Execute(context);
+            context.Push(context.Caller);
         }
     }
 }

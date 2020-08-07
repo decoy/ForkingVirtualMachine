@@ -6,15 +6,12 @@
     {
         private readonly ReadOnlyMemory<byte> data;
 
-        private readonly IScope scope;
-
-        public Executable(IScope scope, ReadOnlyMemory<byte> data)
+        public Executable(ReadOnlyMemory<byte> data)
         {
             this.data = data;
-            this.scope = scope;
         }
 
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
             context.Push(new Execution(scope, data));
         }

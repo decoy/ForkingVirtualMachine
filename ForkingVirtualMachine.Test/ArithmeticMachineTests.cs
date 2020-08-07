@@ -18,7 +18,7 @@ namespace ForkingVirtualMachine.Test
             var ctx = Create();
             ctx.Push(-5);
 
-            Abs.Machine.Execute(ctx);
+            Abs.Machine.Execute(null, ctx);
 
             Assert.AreEqual(5, ctx.PopInt());
         }
@@ -30,7 +30,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(2);
             ctx.Push(5);
 
-            Add.Machine.Execute(ctx);
+            Add.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 + 5, ctx.PopInt());
         }
@@ -42,7 +42,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(2);
             ctx.Push(-5);
 
-            Add.Machine.Execute(ctx);
+            Add.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 + -5, ctx.PopInt());
         }
@@ -54,7 +54,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(Constants.True);
             ctx.Push(Constants.True);
 
-            And.Machine.Execute(ctx);
+            And.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -66,7 +66,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(100);
             ctx.Push(200);
 
-            And.Machine.Execute(ctx);
+            And.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -78,7 +78,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(Constants.False);
             ctx.Push(Constants.True);
 
-            And.Machine.Execute(ctx);
+            And.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -90,7 +90,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Divide.Machine.Execute(ctx);
+            Divide.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 / 5, ctx.PopInt());
         }
@@ -102,7 +102,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            DivideRem.Machine.Execute(ctx);
+            DivideRem.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 / 5, ctx.PopInt());
             Assert.AreEqual(2 % 5, ctx.PopInt());
@@ -115,7 +115,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(10);
             ctx.Push(10);
 
-            EqualTo.Machine.Execute(ctx);
+            EqualTo.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -127,7 +127,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(10);
             ctx.Push(11);
 
-            EqualTo.Machine.Execute(ctx);
+            EqualTo.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -139,7 +139,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(7);
 
-            GreaterThan.Machine.Execute(ctx);
+            GreaterThan.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -151,7 +151,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(7);
             ctx.Push(7);
 
-            GreaterThan.Machine.Execute(ctx);
+            GreaterThan.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -163,7 +163,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(7);
             ctx.Push(7);
 
-            GreaterThanEqualTo.Machine.Execute(ctx);
+            GreaterThanEqualTo.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -176,7 +176,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(200);
             ctx.Push(1);
 
-            If.Machine.Execute(ctx);
+            If.Machine.Execute(null, ctx);
 
             Assert.AreEqual(200, ctx.PopInt());
             Assert.AreEqual(100, ctx.PopInt());
@@ -190,7 +190,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(200);
             ctx.Push(0);
 
-            If.Machine.Execute(ctx);
+            If.Machine.Execute(null, ctx);
 
             Assert.AreEqual(100, ctx.PopInt());
         }
@@ -202,7 +202,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(7);
             ctx.Push(6);
 
-            LessThan.Machine.Execute(ctx);
+            LessThan.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -214,7 +214,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(7);
             ctx.Push(7);
 
-            LessThan.Machine.Execute(ctx);
+            LessThan.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -226,7 +226,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(7);
             ctx.Push(7);
 
-            LessThanEqualTo.Machine.Execute(ctx);
+            LessThanEqualTo.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -238,7 +238,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Max.Machine.Execute(ctx);
+            Max.Machine.Execute(null, ctx);
 
             Assert.AreEqual(5, ctx.PopInt());
         }
@@ -250,7 +250,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Min.Machine.Execute(ctx);
+            Min.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2, ctx.PopInt());
         }
@@ -262,7 +262,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Modulo.Machine.Execute(ctx);
+            Modulo.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 % 5, ctx.PopInt());
         }
@@ -274,7 +274,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Multiply.Machine.Execute(ctx);
+            Multiply.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 * 5, ctx.PopInt());
         }
@@ -285,7 +285,7 @@ namespace ForkingVirtualMachine.Test
             var ctx = Create();
             ctx.Push(5);
 
-            Negate.Machine.Execute(ctx);
+            Negate.Machine.Execute(null, ctx);
 
             Assert.AreEqual(-5, ctx.PopInt());
         }
@@ -296,7 +296,7 @@ namespace ForkingVirtualMachine.Test
             var ctx = Create();
             ctx.Push(-5);
 
-            Negate.Machine.Execute(ctx);
+            Negate.Machine.Execute(null, ctx);
 
             Assert.AreEqual(5, ctx.PopInt());
         }
@@ -307,7 +307,7 @@ namespace ForkingVirtualMachine.Test
             var ctx = Create();
             ctx.Push(100);
 
-            Not.Machine.Execute(ctx);
+            Not.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -318,7 +318,7 @@ namespace ForkingVirtualMachine.Test
             var ctx = Create();
             ctx.Push(0);
 
-            Not.Machine.Execute(ctx);
+            Not.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -330,7 +330,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(0);
             ctx.Push(1);
 
-            Or.Machine.Execute(ctx);
+            Or.Machine.Execute(null, ctx);
 
             Assert.AreEqual(true, ctx.PopBool());
         }
@@ -342,7 +342,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(0);
             ctx.Push(0);
 
-            Or.Machine.Execute(ctx);
+            Or.Machine.Execute(null, ctx);
 
             Assert.AreEqual(false, ctx.PopBool());
         }
@@ -354,7 +354,7 @@ namespace ForkingVirtualMachine.Test
             ctx.Push(5);
             ctx.Push(2);
 
-            Subtract.Machine.Execute(ctx);
+            Subtract.Machine.Execute(null, ctx);
 
             Assert.AreEqual(2 - 5, ctx.PopInt());
         }

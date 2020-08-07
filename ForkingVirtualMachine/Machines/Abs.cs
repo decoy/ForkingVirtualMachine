@@ -6,7 +6,7 @@ namespace ForkingVirtualMachine.Machines
     {
         public static readonly IVirtualMachine Machine = new Abs();
 
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
             var a = context.PopInt();
             context.Push(BigInteger.Abs(a));

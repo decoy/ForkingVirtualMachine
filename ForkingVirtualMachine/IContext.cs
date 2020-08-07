@@ -5,11 +5,11 @@
     public interface IContext
     {
         public void Push(ReadOnlyMemory<byte> data);
-        public void Push(IVirtualMachine machine);
+        public void Push(IExecution machine);
         public ReadOnlyMemory<byte> Pop();
+        public bool Pop(out IExecution execution);
 
         public void Call(IScope from, byte[] scopeId, ReadOnlyMemory<byte> data);
-        public void Define(byte[] word, ReadOnlyMemory<byte> data);
 
         public IScope Caller { get; }
     }

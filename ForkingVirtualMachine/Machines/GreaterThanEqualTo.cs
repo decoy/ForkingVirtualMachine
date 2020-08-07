@@ -4,14 +4,12 @@
     {
         public static readonly IVirtualMachine Machine = new GreaterThanEqualTo();
 
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
             var a = context.PopInt();
             var b = context.PopInt();
 
-            context.Push(a >= b
-                ? Constants.True
-                : Constants.False);
+            context.Push(a >= b);
         }
     }
 }

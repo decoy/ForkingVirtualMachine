@@ -3,7 +3,7 @@
     using System;
     using System.Buffers.Binary;
 
-    public class Execution : IVirtualMachine
+    public class Execution : IExecution
     {
         private readonly IScope scope;
 

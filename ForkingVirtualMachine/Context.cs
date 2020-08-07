@@ -6,7 +6,7 @@
 
     public class Context : IContext
     {
-        public readonly Stack<IVirtualMachine> Executions = new Stack<IVirtualMachine>();
+        public readonly Stack<IExecution> Executions = new Stack<IExecution>();
         public readonly Stack<ReadOnlyMemory<byte>> Stack = new Stack<ReadOnlyMemory<byte>>();
         public readonly Store<ReadOnlyMemory<byte>> Definitions = new Store<ReadOnlyMemory<byte>>();
 
@@ -30,7 +30,7 @@
             Ticks++;
         }
 
-        public void Push(IVirtualMachine exe)
+        public void Push(IExecution exe)
         {
             if (Executions.Count == Constants.MAX_EXE_DEPTH)
             {
@@ -60,15 +60,14 @@
             return Stack.Pop();
         }
 
-        public void Call(IScope from, byte[] scopeId, ReadOnlyMemory<byte> data)
+        public bool Pop(out IExecution execution)
         {
-            // needs that scheduler
-            throw new NotImplementedException();
+            return Executions.TryPop(out execution);
         }
 
-        public void Define(byte[] word, ReadOnlyMemory<byte> data)
+        public void Call(IScope from, byte[] scopeId, ReadOnlyMemory<byte> data)
         {
-            Definitions.Set(word, data);
+            throw new NotImplementedException();
         }
     }
 }

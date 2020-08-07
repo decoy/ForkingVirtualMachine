@@ -16,16 +16,30 @@
 
         public void Execute(IContext context)
         {
-            var word = context.Pop().ToArray();
-            if (word.IsZero())
-            {
-                var scopeid = context.Pop().ToArray();
-                var data = context.Pop();
-                context.Call(this, scopeid, data);
-                return;
-            }
-
-            machines[word].Execute(context);
+            Execute(this, context);
         }
+
+        public void Execute(IScope scope, IContext context)
+        {
+            var word = context.Pop().ToArray();
+            machines[word].Execute(scope, context);
+        }
+
+        public void Set(byte[] word, IVirtualMachine machine)
+        {
+            machines.Set(word, machine);
+        }
+
+        public bool Has(byte[] word)
+        {
+            return machines.ContainsKey(word);
+        }
+
+        public void Remove(byte[] word)
+        {
+            machines.Remove(word);
+        }
+
+
     }
 }

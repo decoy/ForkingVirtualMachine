@@ -6,7 +6,7 @@
     {
         public static readonly IVirtualMachine Machine = new DivideRem();
 
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
             var a = context.PopInt();
             var b = context.PopInt();

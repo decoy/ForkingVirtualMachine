@@ -126,7 +126,6 @@ namespace ForkingVirtualMachine.Test
         [TestMethod]
         public void LimitsExeStack()
         {
-
             var fun = ProgramBuilder.Create(p =>
             {
                 p.Define(Op.x, d => d.Execute(Op.NoOp));

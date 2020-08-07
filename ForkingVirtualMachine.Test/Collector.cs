@@ -7,7 +7,7 @@ namespace ForkingVirtualMachine.Test
     {
         public Queue<BigInteger> Collected { get; } = new Queue<BigInteger>();
 
-        public void Execute(IContext context)
+        public void Execute(IScope scope, IContext context)
         {
             Collected.Enqueue(context.PopInt());
         }
