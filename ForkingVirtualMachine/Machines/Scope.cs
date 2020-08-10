@@ -40,6 +40,9 @@
             machines.Remove(word);
         }
 
-
+        public bool TryGet(byte[] word, out IVirtualMachine machine)
+        {
+            return machines.TryGetValue(word, out machine);
+        }
     }
 }

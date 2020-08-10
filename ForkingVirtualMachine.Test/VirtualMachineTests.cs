@@ -22,24 +22,6 @@ namespace ForkingVirtualMachine.Test
             machines.Set(new[] { word }, machine);
         }
 
-        private static IScope CreateScope(Collector col)
-        {
-            var machines = new Store<IVirtualMachine>();
-            Set(machines, Op.Add, Add.Machine);
-            Set(machines, Op.Print, col);
-            Set(machines, Op.NoOp, NoOp.Machine);
-            Set(machines, Op.Define, Define.Machine);
-            var scope = new Scope(null, machines);
-            return scope;
-        }
-
-        private static Context CreateContext(IScope scope, byte[] exe, IScope caller = null)
-        {
-            var ctx = new Context(caller, new TestCallScheduler());
-            ctx.Push(new Execution(scope, exe));
-            return ctx;
-        }
-
         private static Context CreateContext(Collector col, byte[] exe)
         {
             var machines = new Store<IVirtualMachine>();
@@ -94,8 +76,6 @@ namespace ForkingVirtualMachine.Test
 
             var col = new Collector();
 
-            var scope = CreateScope(col);
-
             Run(CreateContext(col, fun));
 
             Assert.AreEqual(long.MaxValue, col.Collected.Dequeue());
@@ -129,11 +109,11 @@ namespace ForkingVirtualMachine.Test
         public void LimitsExeStack()
         {
             var fun = ProgramBuilder.Create(p => p
-                .Push(d => d.Execute(Op.y))
+                .Push(d => d.Execute(Op.y).Push(10))
                 .Push(Op.x)
                 .Execute(Op.Define)
 
-                .Push(d => d.Execute(Op.x))
+                .Push(d => d.Execute(Op.x).Push(10))
                 .Push(Op.y)
                 .Execute(Op.Define)
 

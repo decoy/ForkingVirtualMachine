@@ -34,7 +34,10 @@
                 if (len == Constants.EXECUTE)
                 {
                     context.Tick();
-                    context.Push(this); // save our spot
+                    if (data.Length != i)
+                    {
+                        context.Push(this); // save our spot
+                    }
                     context.Push(scope);
                     return;
                 }
