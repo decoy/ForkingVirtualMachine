@@ -1,6 +1,7 @@
 ﻿namespace ForkingVirtualMachine
 {
     using System.Numerics;
+    using System.Threading.Tasks;
 
     public static class ContextExtensions
     {
@@ -27,6 +28,29 @@
         public static void Push(this IContext context, BigInteger integer)
         {
             context.Push(integer.ToByteArray());
+        }
+
+        public static async Task RunAsync(this IContext context)
+        {
+            while (context.Pop(out var execution))
+            {
+                if (execution is IAsyncExecution aex)
+                {
+                    await aex.ExecuteAsync(context);
+                }
+                else
+                {
+                    execution.Execute(context);
+                }
+            }
+        }
+
+        public static void Run(this IContext context)
+        {
+            while (context.Pop(out var execution))
+            {
+                execution.Execute(context);
+            }
         }
     }
 }

@@ -27,6 +27,7 @@
             {
                 throw new BoundaryException();
             }
+
             Ticks++;
         }
 
