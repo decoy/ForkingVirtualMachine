@@ -8,7 +8,7 @@
 
         public static readonly byte[] Empty = new byte[0];
 
-        public static readonly byte[] True = One;
+        public static readonly byte[] True = new byte[1] { byte.MaxValue };
 
         public static readonly byte[] False = Empty;
 

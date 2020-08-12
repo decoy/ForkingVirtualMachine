@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace ForkingVirtualMachine.Test
@@ -40,6 +41,7 @@ namespace ForkingVirtualMachine.Test
                 Id = Guid.NewGuid().ToByteArray(),
                 ParentId = parentId,
                 DataId = dataId,
+                Sign = true,
                 Weight = 5,
                 ModifiedOn = DateTime.UtcNow,
                 Version = 0,
@@ -146,6 +148,52 @@ namespace ForkingVirtualMachine.Test
                 Assert.IsTrue(comparer.Equals(n3.Id, ancestors.First().Id));
                 Assert.IsTrue(comparer.Equals(n1.Id, ancestors.Skip(1).First().Id));
             }
+        }
+
+        [TestMethod]
+        public async Task GetsChildNode()
+        {
+            using (var db = await OpenDb())
+            {
+                var repo = new Repository(db);
+
+                var d1 = CreateContent();
+                await repo.InsertContent(d1);
+
+                var d2 = CreateContent();
+                await repo.InsertContent(d2);
+
+                var n1 = CreateNode(d1.Id);
+                await repo.InsertNode(n1);
+
+                var n2 = CreateNode(d1.Id, n1.Id);
+                await repo.InsertNode(n2);
+
+                var n3 = CreateNode(d2.Id, n1.Id);
+                await repo.InsertNode(n3);
+
+                var child = await repo.GetChildNode(n1.Id, true, d2.Id);
+                Assert.IsTrue(comparer.Equals(n3.Id, child.Id));
+            }
+        }
+
+        [TestMethod]
+        public void CreatesNodeId()
+        {
+            using var sha = SHA256.Create();
+            var from = new byte[] { 1, 2, 3 };
+            var to = new byte[] { 6, 7, 8 };
+
+            var id = Repository.CreateNodeId(from, true, to);
+
+            var ex = sha.ComputeHash(new byte[] { 1, 2, 3, 255, 6, 7, 8 });
+            Assert.IsTrue(comparer.Equals(ex, id));
+
+
+            var id2 = Repository.CreateNodeId(from, false, to);
+
+            var ex2 = sha.ComputeHash(new byte[] { 1, 2, 3, 0, 6, 7, 8 });
+            Assert.IsTrue(comparer.Equals(ex2, id2));
         }
     }
 }

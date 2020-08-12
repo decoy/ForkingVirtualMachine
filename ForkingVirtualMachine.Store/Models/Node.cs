@@ -11,6 +11,8 @@
 
         public byte[] DataId { get; set; }
 
+        public bool Sign { get; set; }
+
         public BigInteger Weight { get; set; }
 
         public DateTime ModifiedOn { get; set; }

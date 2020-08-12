@@ -70,5 +70,10 @@
         {
             Scheduler.Schedule(from, scopeId, data);
         }
+
+        public T Resolve<T>()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

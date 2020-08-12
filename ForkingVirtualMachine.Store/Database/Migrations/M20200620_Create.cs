@@ -16,7 +16,8 @@
                     parent_id   BLOB     REFERENCES nodes (id),
                     data_id     BLOB     NOT NULL
                                          REFERENCES contents (id),
-                    weight      BLOB     NOT NULL,
+                    sign        BOOLEAN  NOT NULL,
+                    weight      BLOB     NOT NULL,                    
                     modified_on DATETIME NOT NULL,
                     version     INTEGER  NOT NULL
                 );";
