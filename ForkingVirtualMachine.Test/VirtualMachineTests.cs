@@ -30,7 +30,8 @@ namespace ForkingVirtualMachine.Test
             Set(machines, Op.NoOp, NoOp.Machine);
             Set(machines, Op.Define, Define.Machine);
 
-            var scope = new Scope(null, machines);
+            var vm = new VirtualMachine(null, machines);
+            var scope = new TestScope(null, vm);
             var ctx = new Context(null, null);
 
             ctx.Push(new Execution(scope, exe));

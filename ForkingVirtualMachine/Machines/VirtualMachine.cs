@@ -2,21 +2,16 @@
 {
     using ForkingVirtualMachine.Utility;
 
-    public class Scope : IScope
+    public class VirtualMachine : IVirtualMachine
     {
         public byte[] Id { get; }
 
         private readonly Store<IVirtualMachine> machines;
 
-        public Scope(byte[] id, Store<IVirtualMachine> machines)
+        public VirtualMachine(byte[] id, Store<IVirtualMachine> machines)
         {
             Id = id;
             this.machines = machines;
-        }
-
-        public void Execute(IContext context)
-        {
-            Execute(this, context);
         }
 
         public void Execute(IScope scope, IContext context)

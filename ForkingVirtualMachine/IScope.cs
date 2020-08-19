@@ -1,15 +1,15 @@
 ﻿namespace ForkingVirtualMachine
 {
-    public interface IScope : IVirtualMachine, IExecution
+    public interface IScope : IExecution
     {
         public byte[] Id { get; }
 
-        public void Set(byte[] word, IVirtualMachine machine);
+        public byte[] FromId { get; }
 
-        public bool Has(byte[] word);
+        public byte[] ToId { get; }
 
-        public void Remove(byte[] word);
+        public IScope Caller { get; }
 
-        public bool TryGet(byte[] word, out IVirtualMachine machine);
+        public IVirtualMachine Machine { get; }
     }
 }

@@ -5,6 +5,12 @@
 
     public class Transfer : IAsyncVirtualMachine
     {
+        private readonly Repository db;
+        public Transfer(Repository db)
+        {
+            this.db = db;
+        }
+
         public void Execute(IScope scope, IContext context)
         {
             ExecuteAsync(scope, context).GetAwaiter().GetResult();
@@ -12,9 +18,6 @@
 
         public async Task ExecuteAsync(IScope scope, IContext context)
         {
-            // temp maybe
-            var db = context.Resolve<Repository>();
-
             // context, from, to, delta
             var from = scope.Id;
 

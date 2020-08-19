@@ -4,7 +4,7 @@
     {
         public void Execute(IScope scope, IContext context)
         {
-            context.Push(context.Caller);
+            context.Push(scope.Caller);
         }
     }
 }

@@ -12,9 +12,14 @@
 
         public void Execute(IScope scope, IContext context)
         {
+            if (!(scope.Machine is VirtualMachine vm))
+            {
+                throw new Exception(); // something is misconfigured somewhere
+            }
+
             var word = context.Pop().ToArray();
             var data = context.Pop();
-            scope.Set(word, new Executable(data));
+            vm.Set(word, new Executable(data));
         }
     }
 }
