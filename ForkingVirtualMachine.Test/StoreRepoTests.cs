@@ -34,18 +34,30 @@ namespace ForkingVirtualMachine.Test
             };
         }
 
-        private static Node CreateNode(byte[] dataId, byte[] parentId = null)
+        private static Node CreateNode(byte[] dataId, byte[] fromId = null, byte[] toId = null)
         {
             return new Node()
             {
                 Id = Guid.NewGuid().ToByteArray(),
-                FromId = parentId,
+                FromId = fromId,
+                ToId = toId,
                 DataId = dataId,
                 Sign = true,
                 Weight = 5,
                 ModifiedOn = DateTime.UtcNow,
                 Version = 0,
             };
+        }
+
+        private static void Compare(Node expected, Node actual)
+        {
+            Assert.IsTrue(comparer.Equals(expected.Id, actual.Id));
+            Assert.IsTrue(comparer.Equals(expected.FromId, actual.FromId));
+            Assert.IsTrue(comparer.Equals(expected.ToId, actual.ToId));
+            Assert.IsTrue(comparer.Equals(expected.DataId, actual.DataId));
+            Assert.AreEqual(expected.Weight, actual.Weight);
+            Assert.AreEqual(expected.ModifiedOn, actual.ModifiedOn);
+            Assert.AreEqual(expected.Version, actual.Version);
         }
 
         [TestMethod]
@@ -160,19 +172,19 @@ namespace ForkingVirtualMachine.Test
                 var d1 = CreateContent();
                 await repo.InsertContent(d1);
 
-                var d2 = CreateContent();
-                await repo.InsertContent(d2);
+                var root = CreateNode(d1.Id);
+                await repo.InsertNode(root);
 
-                var n1 = CreateNode(d1.Id);
+                var n1 = CreateNode(d1.Id, root.Id);
                 await repo.InsertNode(n1);
 
-                var n2 = CreateNode(d1.Id, n1.Id);
+                var n2 = CreateNode(d1.Id, root.Id);
                 await repo.InsertNode(n2);
 
-                var n3 = CreateNode(d2.Id, n1.Id);
+                var n3 = CreateNode(d1.Id, n1.Id, n2.Id);
                 await repo.InsertNode(n3);
 
-                var child = await repo.GetChildNode(n1.Id, true, d2.Id);
+                var child = await repo.GetChildNode(n1.Id, true, n2.Id);
                 Assert.IsTrue(comparer.Equals(n3.Id, child.Id));
             }
         }
@@ -182,18 +194,26 @@ namespace ForkingVirtualMachine.Test
         {
             using var sha = SHA256.Create();
             var from = new byte[] { 1, 2, 3 };
-            var to = new byte[] { 6, 7, 8 };
+            var to = new byte[] { 55 };
+            var data = new byte[] { 6, 7, 8 };
+            var empty = new byte[0];
 
-            var id = Repository.CreateNodeId(from, true, to);
-
-            var ex = sha.ComputeHash(new byte[] { 1, 2, 3, 255, 6, 7, 8 });
+            var id = Repository.CreateNodeId(from, true, to, data);
+            var ex = sha.ComputeHash(new byte[] { 1, 2, 3, 255, 55, 6, 7, 8 });
             Assert.IsTrue(comparer.Equals(ex, id));
 
-
-            var id2 = Repository.CreateNodeId(from, false, to);
-
-            var ex2 = sha.ComputeHash(new byte[] { 1, 2, 3, 0, 6, 7, 8 });
+            var id2 = Repository.CreateNodeId(from, false, to, data);
+            var ex2 = sha.ComputeHash(new byte[] { 1, 2, 3, 0, 55, 6, 7, 8 });
             Assert.IsTrue(comparer.Equals(ex2, id2));
+
+            var id3 = Repository.CreateNodeId(from, false, empty, data);
+            var ex3 = sha.ComputeHash(new byte[] { 1, 2, 3, 0, 6, 7, 8 });
+            Assert.IsTrue(comparer.Equals(ex3, id3));
+
+            var id4 = Repository.CreateNodeId(empty, false, to, data);
+            var ex4 = sha.ComputeHash(new byte[] { 0, 55, 6, 7, 8 });
+            Assert.IsTrue(comparer.Equals(ex4, id4));
+
         }
     }
 }

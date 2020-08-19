@@ -6,6 +6,7 @@
     public class Transfer : IAsyncVirtualMachine
     {
         private readonly Repository db;
+
         public Transfer(Repository db)
         {
             this.db = db;
@@ -30,7 +31,7 @@
             var toId = context.Pop().ToArray(); // /g1/a1/u2
 
 
-            var node = db.GetNode(ctxId);
+            var node = await db.GetNode(ctxId);
 
 
             // get node by context + from

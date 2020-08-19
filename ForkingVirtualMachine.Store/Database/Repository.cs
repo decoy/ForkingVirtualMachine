@@ -120,27 +120,27 @@
             return db.QuerySingle(sql, new { id }, ToNode);
         }
 
-        public Task<IEnumerable<Node>> GetChildNodes(byte[] parentId, int limit = LIMIT)
+        public Task<IEnumerable<Node>> GetChildNodes(byte[] fromId, int limit = LIMIT)
         {
             const string sql = @"
                 SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM nodes 
-                WHERE from_id = @parentId
+                WHERE from_id = @fromId
                 LIMIT @limit;";
 
-            return db.Query(sql, new { parentId, limit }, ToNode);
+            return db.Query(sql, new { fromId, limit }, ToNode);
         }
 
-        public Task<Node> GetChildNode(byte[] parentId, bool sign, byte[] toId)
+        public Task<Node> GetChildNode(byte[] fromId, bool sign, byte[] toId)
         {
             const string sql = @"
                 SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM nodes 
-                WHERE from_id = @parentId
-                AND data_id = @toId
+                WHERE from_id = @fromId
+                AND to_id = @toId
                 AND sign = @sign;";
 
-            return db.QuerySingle(sql, new { parentId, toId, sign }, ToNode);
+            return db.QuerySingle(sql, new { fromId, toId, sign }, ToNode);
         }
 
         public Task<IEnumerable<Node>> GetNodeAncestry(byte[] id)
@@ -237,13 +237,21 @@
             };
         }
 
-        public static byte[] CreateNodeId(byte[] parentId, bool sign, byte[] toId)
+        public static byte[] CreateNodeId(byte[] fromId, bool sign, byte[] toId, byte[] dataId)
         {
             using var sha = SHA256.Create();
-            var id = new byte[parentId.Length + toId.Length + 1];
-            Buffer.BlockCopy(parentId, 0, id, 0, parentId.Length);
-            Buffer.BlockCopy(toId, 0, id, parentId.Length + 1, toId.Length);
-            id[parentId.Length] = sign ? byte.MaxValue : byte.MinValue;
+            var id = new byte[fromId.Length + toId.Length + dataId.Length + 1];
+            var i = 0;
+
+            Buffer.BlockCopy(fromId, 0, id, i, fromId.Length);
+            id[fromId.Length] = sign ? byte.MaxValue : byte.MinValue;
+            i += fromId.Length + 1;
+
+            Buffer.BlockCopy(toId, 0, id, i, toId.Length);
+            i += toId.Length;
+
+            Buffer.BlockCopy(dataId, 0, id, i, dataId.Length);
+
             return sha.ComputeHash(id);
         }
 
@@ -251,52 +259,7 @@
 
         #region exchange
 
-        public async Task<Node> GetOrCreateChild(byte[] nodeId, bool sign, byte[] toId)
-        {
-            var to = await GetChildNode(nodeId, sign, toId);
-            if (to == null)
-            {
-                var id = CreateNodeId(nodeId, sign, toId);
-                to = new Node()
-                {
-                    Id = id,
-                    DataId = toId,
-                    Sign = sign,
-                    FromId = nodeId,
-                    Version = 0,
-                    Weight = 0,
-                };
 
-                await InsertNode(to);
-            }
-
-            return to;
-        }
-
-        public async Task Transfer(byte[] fromId, byte[] toId, BigInteger delta, DateTime time)
-        {
-            if (delta <= 0)
-            {
-                throw new BoundaryException();
-            }
-
-            var from = await GetNode(fromId);
-
-            if (from.Weight < delta)
-            {
-                throw new BoundaryException();
-            }
-
-            from.Weight -= delta;
-            from.ModifiedOn = time;
-
-            var to = await GetOrCreateChild(from.FromId, from.Sign, toId);
-            to.Weight += delta;
-            to.ModifiedOn = time;
-
-            await UpdateNode(from, from.Version + 1);
-            await UpdateNode(to, to.Version + 1);
-        }
 
         #endregion
     }
