@@ -7,7 +7,9 @@
     {
         public byte[] Id { get; set; }
 
-        public byte[] ParentId { get; set; }
+        public byte[] FromId { get; set; }
+
+        public byte[] ToId { get; set; }
 
         public byte[] DataId { get; set; }
 

@@ -39,7 +39,7 @@ namespace ForkingVirtualMachine.Test
             return new Node()
             {
                 Id = Guid.NewGuid().ToByteArray(),
-                ParentId = parentId,
+                FromId = parentId,
                 DataId = dataId,
                 Sign = true,
                 Weight = 5,
@@ -98,7 +98,7 @@ namespace ForkingVirtualMachine.Test
                 var ns1 = await repo.GetNode(n1.Id);
 
                 Assert.IsTrue(comparer.Equals(n1.Id, ns1.Id));
-                Assert.IsTrue(comparer.Equals(n1.ParentId, ns1.ParentId));
+                Assert.IsTrue(comparer.Equals(n1.FromId, ns1.FromId));
                 Assert.IsTrue(comparer.Equals(n1.DataId, ns1.DataId));
                 Assert.AreEqual(n1.Weight, ns1.Weight);
                 Assert.AreEqual(n1.ModifiedOn, ns1.ModifiedOn);

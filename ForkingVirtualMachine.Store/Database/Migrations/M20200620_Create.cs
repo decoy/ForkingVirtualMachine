@@ -13,7 +13,8 @@
                     id          BLOB     PRIMARY KEY
                                          UNIQUE
                                          NOT NULL,
-                    parent_id   BLOB     REFERENCES nodes (id),
+                    from_id     BLOB     REFERENCES nodes (id),
+                    to_id       BLOB     REFERENCES nodes (id),
                     data_id     BLOB     NOT NULL
                                          REFERENCES contents (id),
                     sign        BOOLEAN  NOT NULL,

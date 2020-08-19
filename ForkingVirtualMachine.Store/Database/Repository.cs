@@ -112,7 +112,7 @@
         public Task<Node> GetNode(byte[] id)
         {
             const string sql = @"
-                SELECT id, parent_id, data_id, sign, weight, modified_on, version
+                SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM nodes 
                 WHERE id = @id
                 LIMIT 1;";
@@ -123,9 +123,9 @@
         public Task<IEnumerable<Node>> GetChildNodes(byte[] parentId, int limit = LIMIT)
         {
             const string sql = @"
-                SELECT id, parent_id, data_id, sign, weight, modified_on, version
+                SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM nodes 
-                WHERE parent_id = @parentId
+                WHERE from_id = @parentId
                 LIMIT @limit;";
 
             return db.Query(sql, new { parentId, limit }, ToNode);
@@ -134,9 +134,9 @@
         public Task<Node> GetChildNode(byte[] parentId, bool sign, byte[] toId)
         {
             const string sql = @"
-                SELECT id, parent_id, data_id, sign, weight, modified_on, version
+                SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM nodes 
-                WHERE parent_id = @parentId
+                WHERE from_id = @parentId
                 AND data_id = @toId
                 AND sign = @sign;";
 
@@ -146,18 +146,18 @@
         public Task<IEnumerable<Node>> GetNodeAncestry(byte[] id)
         {
             const string sql = @"
-                WITH RECURSIVE node_tree (id, parent_id, data_id, sign, weight, modified_on, version) AS (
-                    SELECT n1.id, n1.parent_id, n1.data_id, n1.sign, n1.weight, n1.modified_on, n1.version
+                WITH RECURSIVE node_tree (id, from_id, to_id, data_id, sign, weight, modified_on, version) AS (
+                    SELECT n1.id, n1.from_id, n1.to_id, n1.data_id, n1.sign, n1.weight, n1.modified_on, n1.version
                     FROM nodes n1
                     WHERE n1.id = @id
 
                     UNION ALL
 
-                    SELECT n2.id, n2.parent_id, n2.data_id, n2.sign, n2.weight, n2.modified_on, n2.version
+                    SELECT n2.id, n2.from_id, n2.to_id, n2.data_id, n2.sign, n2.weight, n2.modified_on, n2.version
                     FROM nodes n2
-                    JOIN node_tree ON n2.id = node_tree.parent_id
+                    JOIN node_tree ON n2.id = node_tree.from_id
                 )
-                SELECT id, parent_id, data_id, sign, weight, modified_on, version
+                SELECT id, from_id, to_id, data_id, sign, weight, modified_on, version
                 FROM node_tree;";
 
             return db.Query(sql, new { id }, ToNode);
@@ -167,14 +167,15 @@
         {
             const string sql = @"
                 INSERT INTO nodes 
-                (id, parent_id, data_id, sign, weight, modified_on, version)
+                (id, from_id, to_id, data_id, sign, weight, modified_on, version)
                 VALUES
-                (@id, @parent_id, @data_id, @sign, @weight, @modified_on, @version);";
+                (@id, @from_id, @to_id, @data_id, @sign, @weight, @modified_on, @version);";
 
             return db.Execute(sql, new
             {
                 id = node.Id,
-                parent_id = node.ParentId,
+                from_id = node.FromId,
+                to_id = node.ToId,
                 data_id = node.DataId,
                 sign = node.Sign,
                 weight = node.Weight.ToByteArray(),
@@ -226,12 +227,13 @@
             return new Node()
             {
                 Id = (byte[])reader.GetValue(0),
-                ParentId = reader.GetNullableValue<byte[]>(1),
-                DataId = (byte[])reader.GetValue(2),
-                Sign = reader.GetBoolean(3),
-                Weight = new BigInteger((byte[])reader.GetValue(4)),
-                ModifiedOn = reader.GetDateTime(5),
-                Version = reader.GetInt32(6),
+                FromId = reader.GetNullableValue<byte[]>(1),
+                ToId = reader.GetNullableValue<byte[]>(2),
+                DataId = (byte[])reader.GetValue(3),
+                Sign = reader.GetBoolean(4),
+                Weight = new BigInteger((byte[])reader.GetValue(5)),
+                ModifiedOn = reader.GetDateTime(6),
+                Version = reader.GetInt32(7),
             };
         }
 
@@ -260,7 +262,7 @@
                     Id = id,
                     DataId = toId,
                     Sign = sign,
-                    ParentId = nodeId,
+                    FromId = nodeId,
                     Version = 0,
                     Weight = 0,
                 };
@@ -288,7 +290,7 @@
             from.Weight -= delta;
             from.ModifiedOn = time;
 
-            var to = await GetOrCreateChild(from.ParentId, from.Sign, toId);
+            var to = await GetOrCreateChild(from.FromId, from.Sign, toId);
             to.Weight += delta;
             to.ModifiedOn = time;
 
