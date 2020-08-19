@@ -1,5 +1,7 @@
 ﻿namespace ForkingVirtualMachine
 {
+    using ForkingVirtualMachine.Machines;
+    using System;
     using System.Numerics;
     using System.Threading.Tasks;
 
@@ -51,6 +53,12 @@
             {
                 execution.Execute(context);
             }
+        }
+
+        public static void Run(this IContext context, IScope scope, ReadOnlyMemory<byte> data)
+        {
+            new Execution(scope, data).Execute(context);
+            context.Run();
         }
     }
 }

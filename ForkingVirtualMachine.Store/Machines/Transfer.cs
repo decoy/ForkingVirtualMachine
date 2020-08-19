@@ -1,10 +1,15 @@
 ﻿namespace ForkingVirtualMachine.Store.Machines
 {
     using ForkingVirtualMachine.Store.Database;
+    using System;
     using System.Threading.Tasks;
 
     public class Transfer : IAsyncVirtualMachine
     {
+        public static readonly byte[] ON_RECEIEVE = Guid.Parse("FB5DF695-C745-4935-ACA6-B49EC9E00FD8").ToByteArray();
+
+        public static readonly byte[] ON_RECEIVE_EXECUTE = ProgramBuilder.Create(p => p.Execute(ON_RECEIEVE));
+
         private readonly Repository db;
 
         public Transfer(Repository db)
@@ -19,31 +24,28 @@
 
         public async Task ExecuteAsync(IScope scope, IContext context)
         {
-            // context, from, to, delta
-            var from = scope.Id;
+            var ctxId = scope.Id;
+            var from = scope.Caller.Id;
+            var to = context.Pop().ToArray();
+            var delta = context.PopInt();
 
-            // relative or id?
-            // is the path the id?
-            // from _is_ a context...
-            // hrmmmmmmmm let's go with an id for now.
+            var toNode = await db.Transfer(ctxId, from, to, delta);
 
-            var ctxId = context.Pop().ToArray(); // /g1/green/p1
-            var toId = context.Pop().ToArray(); // /g1/a1/u2
+            // TODO: do we allow it a caller here?
+            // how to allow other games to do this?
+            var toScope = await db.LoadScope(scope, toNode);
 
+            var res = new Context();
+            res.Push(delta);
+            res.Push(ctxId);
+            res.Push(from);
 
-            var node = await db.GetNode(ctxId);
+            res.Run(toScope, ON_RECEIVE_EXECUTE);
 
-
-            // get node by context + from
-            // get a 'to' node
-
-            // do this in the db?
-            // fromnode.value--;
-            // tonode.value++;
-
-            // load 'to' scope
-
-            // if !tonode.onreceive() rollback();            
+            if (!res.PopBool())
+            {
+                throw new Exception();
+            }
         }
     }
 }

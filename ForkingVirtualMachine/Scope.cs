@@ -1,6 +1,6 @@
-﻿namespace ForkingVirtualMachine.Test
+﻿namespace ForkingVirtualMachine
 {
-    public class TestScope : IScope
+    public class Scope : IScope
     {
         public byte[] Id { get; }
 
@@ -12,7 +12,7 @@
 
         public IVirtualMachine Machine { get; }
 
-        public TestScope(byte[] id, byte[] fromId, byte[] toId, IScope caller, IVirtualMachine machine)
+        public Scope(byte[] id, byte[] fromId, byte[] toId, IScope caller, IVirtualMachine machine)
         {
             Id = id;
             FromId = fromId;
@@ -21,7 +21,7 @@
             Machine = machine;
         }
 
-        public TestScope(IScope caller, IVirtualMachine machine)
+        public Scope(IScope caller, IVirtualMachine machine)
         {
             Caller = caller;
             Machine = machine;

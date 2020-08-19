@@ -259,7 +259,61 @@
 
         #region exchange
 
+        public async Task<Node> Transfer(byte[] nodeId, byte[] fromId, byte[] toId, BigInteger delta)
+        {
+            if (delta <= 0)
+            {
+                throw new Exception();
+            }
 
+            var from = await GetNode(fromId);
+            if (from.FromId != nodeId)
+            {
+                throw new Exception();
+            }
+
+            if (from.Weight < delta)
+            {
+                throw new Exception();
+            }
+
+            var to = await GetNode(toId); // exists?
+            if (to.FromId != nodeId)
+            {
+                throw new Exception();
+            }
+
+            if (to.Sign != from.Sign)
+            {
+                throw new Exception();
+            }
+
+            from.Weight -= delta;
+            to.Weight += delta;
+
+            await UpdateNode(from, from.Version++);
+            await UpdateNode(to, to.Version++);
+
+            return to;
+        }
+
+        public async Task<IScope> LoadScope(IScope caller, Node node)
+        {
+            // TODO: caching and loading
+            var data = await GetContent(node.DataId);
+
+            // TODO: does this caller have access to this node?
+            // must either be the "to" or the "from" (or along that parent chain)
+
+            var scope = new Scope(
+                node.Id,
+                node.FromId,
+                node.ToId,
+                caller,
+                null); // TODO
+
+            return scope;
+        }
 
         #endregion
     }

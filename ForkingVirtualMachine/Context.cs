@@ -11,16 +11,6 @@
 
         public int Ticks { get; private set; }
 
-        public IScope Caller { get; }
-
-        public ICallScheduler Scheduler { get; }
-
-        public Context(IScope caller, ICallScheduler scheduler)
-        {
-            Caller = caller;
-            Scheduler = scheduler;
-        }
-
         public void Tick()
         {
             if (Ticks == Constants.MAX_TICKS)
@@ -64,16 +54,6 @@
         public bool Pop(out IExecution execution)
         {
             return Executions.TryPop(out execution);
-        }
-
-        public void Call(IScope from, byte[] scopeId, ReadOnlyMemory<byte> data)
-        {
-            Scheduler.Schedule(from, scopeId, data);
-        }
-
-        public T Resolve<T>()
-        {
-            throw new NotImplementedException();
         }
     }
 }

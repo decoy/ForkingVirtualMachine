@@ -9,7 +9,7 @@ namespace ForkingVirtualMachine.Test
     {
         public static Context Create()
         {
-            return new Context(null, null);
+            return new Context();
         }
 
         [TestMethod]
